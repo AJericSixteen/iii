@@ -2,8 +2,8 @@
 // Replace with actual database connection
 $servername = "localhost";
 $username = "root";
-$password = "";
-$dbname = "iii";
+$password = "@jerictrias16*";
+$dbname = "iii_inventory";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 ?>
