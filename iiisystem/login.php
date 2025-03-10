@@ -25,17 +25,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             FROM account 
             JOIN user_info ON account.user_id = user_info.user_id
             WHERE account.username = ? LIMIT 1";
-    
+
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         die("Query preparation failed: " . $conn->error);
     }
-    
+
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
-    
+
     if ($row) {
         // Ensure 'role' exists in the database result
         if (!isset($row['role']) || empty($row['role'])) {
@@ -45,26 +45,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Verify the password using password_verify() against the hashed password
         if (password_verify($password, $row["password"])) {
             // Set session variables
-            $_SESSION['user_id']   = $row['user_id'];
-            $_SESSION['username']  = $row['username'];
+            $_SESSION['user_id'] = $row['user_id'];
+            $_SESSION['username'] = $row['username'];
             $_SESSION['firstname'] = $row['firstname'];
-            $_SESSION['lastname']  = $row['lastname'];
-            $_SESSION['role']      = trim($row['role']);
+            $_SESSION['lastname'] = $row['lastname'];
+            $_SESSION['role'] = trim($row['role']);
 
             // Redirect based on role
             if ($_SESSION['role'] === "managing director") {
                 header("Location: ./md_dashboard/dashboard/dashboard.php");
             } else {
+                // Stuff Dashboard
                 header("Location: dashboard.php");
             }
             exit();
+            
         } else {
-            echo "<p style='color: red;'>Invalid password.</p>";
+            echo "<script> alert('Invalid Password!'); window.location.href='./index.php';</script>";
+            
         }
     } else {
-        echo "<p style='color: red;'>User not found.</p>";
+        echo "<script>alert('Invalid Username and Password!'); window.location.href='./index.php';</script>";
     }
-    
+
     $stmt->close();
 }
 ?>

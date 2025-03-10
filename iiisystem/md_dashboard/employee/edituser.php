@@ -42,10 +42,6 @@ if (!$user) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>III | Dashboard - Edit User</title>
 
-  <!-- External CSS -->
-  <link rel="stylesheet" href="../../asset/css/sidebar.css">
-  <link rel="stylesheet" href="../../asset/css/dashboard/dashboard_style.css">
-
   <!-- Logo -->
   <link rel="icon" href="../../asset/img/logo.png">
 
@@ -92,7 +88,7 @@ if (!$user) {
 </head>
 <body>
   <div class="wrapper">
-    <?php include '../sidebar.php'; ?>
+  <?php require '../../asset/includes/sidebar.php'; ?>
     <div class="main p-3">
       <div class="edit-card">
         <!-- Back Button -->

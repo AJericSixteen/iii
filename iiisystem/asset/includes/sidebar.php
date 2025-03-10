@@ -4,36 +4,34 @@ if (!defined('ALLOW_ACCESS')) {
     header("Location: ../404page/404.php");
     exit();
 }
+
 ?>
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>III | Dashboard</title>
 
-    <!-- Icon -->
-    <link rel="icon" href="../asset/img/logo.png">
-
-    <!-- Lineicons -->
-    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <!-- sidebar css -->
+    <link rel="stylesheet" href="../../asset/css/sidebar.css">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="../../asset/css/fontawesome/all.min.css">
+    <link rel="stylesheet" href="../../asset/css/fontawesome/fontawesome.min.css">
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../asset/bootstrap/bootstrap.css">
+
     <!-- Main Dashboard CSS -->
-    <link rel="stylesheet" href="../asset/css/md_dashboard.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
 </head>
 
 
-<aside id="sidebar">
+<aside id="sidebar" class="expand">
     <div class="d-flex">
         <button class="toggle-btn" type="button">
-            <i class="lni lni-grid-alt"></i>
+            <i class="fa-solid fa-bars"></i>
         </button>
         <div class="sidebar-logo">
             <a href="#" style="text-decoration: none;">III ADS SERVICES</a>
@@ -41,76 +39,79 @@ if (!defined('ALLOW_ACCESS')) {
     </div>
     <ul class="sidebar-nav">
         <li class="sidebar-item">
-            <a href="../../md_dashboard/dashboard/dashboard.php" class="sidebar-link" style="text-decoration: none;">
+            <a href="../../md_dashboard/dashboard/dashboard.php" class="sidebar-link" style="text-decoration: none;"
+                title="Dashboard">
                 <i class="fa-solid fa-gauge"></i>
                 <span>Dasboard</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
-                <i class="fa-solid fa-bars"></i>
-                <span>Purchase Order</span>
+            <a href="../../md_dashboard/project/project.php" class="sidebar-link" style="text-decoration: none;"
+                title="Purchase Order">
+                <i class="fa-solid fa-diagram-project"></i>
+                <span>Project</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
+            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Receiving">
                 <i class="fa-solid fa-boxes-stacked"></i>
                 <span>Receiving</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
+            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Back Order">
                 <i class="fa-solid fa-arrow-right-arrow-left"></i>
                 <span>Back Order</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
+            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Return List">
                 <i class="fa-solid fa-arrow-rotate-right"></i>
                 <span>Return List</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
+            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Stocks">
                 <i class="fa-solid fa-warehouse"></i>
                 <span>Stocks</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
-                <i class="lni lni-cog"></i>
+            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Sale List">
+                <i class="fa-solid fa-tag"></i>
                 <span>Sale List</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
+            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Supplier List">
                 <i class="fa-solid fa-truck-ramp-box"></i>
                 <span>Supplier List</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
+            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Item List">
                 <i class="fa-solid fa-boxes-stacked"></i>
                 <span>Item List</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="../employee/user.php" class="sidebar-link" style="text-decoration: none;">
+            <a href="../employee/user.php" class="sidebar-link" style="text-decoration: none;" title="User List">
                 <i class="fa-solid fa-users"></i>
                 <span>User List</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;">
-                <i class="lni lni-cog"></i>
+            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Settings">
+                <i class="fa-solid fa-cog"></i>
                 <span>Settings</span>
             </a>
         </li>
     </ul>
     <div class="sidebar-footer">
-        <a href="../../logout.php" class="sidebar-link" style="text-decoration: none;">
-            <i class="lni lni-exit"></i>
+        <a href="../../logout.php" class="sidebar-link" style="text-decoration: none;" title="Logout">
+            <i class="fa-solid fa-sign-out"></i>
             <span>Logout</span>
         </a>
     </div>
 </aside>
+<script src="../../asset/js/sidebar.js"></script>
