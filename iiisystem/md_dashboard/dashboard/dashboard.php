@@ -12,7 +12,7 @@ define('ALLOW_ACCESS', true);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>III | Dashboard</title>
+  <title>III | DASHBOARD</title>
 
   <!-- EXTERNAL CSS -->
   <link rel="stylesheet" href="../../asset/css/dashboard/dashboard_style.css">
@@ -20,12 +20,15 @@ define('ALLOW_ACCESS', true);
   <!-- ICON LOGO -->
   <link rel="icon" href="../../asset/img/logo.png">
 
+  <!-- FontAwesome Icons -->
+  <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
 </head>
-
 <style>
-  
+  /* Prevent clicking and hovering on graphs */
+  .graph-container canvas {
+      pointer-events: none !important;
+  }
 </style>
-
 <body>
   <div class="wrapper">
     <?php require '../../asset/includes/sidebar.php'; ?>
@@ -38,7 +41,7 @@ define('ALLOW_ACCESS', true);
         <div class="row g-4">
           <!-- Projects Card -->
           <div class="col-md-4">
-            <div class="card p-3 d-flex align-items-center" id="projectsCard">
+            <div class="card p-3 d-flex align-items-center card-toggle" data-target="#projectsGraph">
               <div class="d-flex align-items-center">
                 <span style="color: #0c95b9;">
                   <i class="fa-solid fa-diagram-project card-icon" style="font-size: 50px;"></i>
@@ -53,9 +56,10 @@ define('ALLOW_ACCESS', true);
               <canvas id="projectsChart"></canvas>
             </div>
           </div>
+
           <!-- Sales Card -->
           <div class="col-md-4">
-            <div class="card p-3 d-flex align-items-center" id="salesCard">
+            <div class="card p-3 d-flex align-items-center card-toggle" data-target="#salesGraph">
               <div class="d-flex align-items-center">
                 <span style="color: #ffbb02;">
                   <i class="fa-solid fa-tag card-icon" style="font-size: 50px;"></i>
@@ -70,9 +74,10 @@ define('ALLOW_ACCESS', true);
               <canvas id="salesChart"></canvas>
             </div>
           </div>
+
           <!-- Stocks Card -->
           <div class="col-md-4">
-            <div class="card p-3 d-flex align-items-center" id="stocksCard">
+            <div class="card p-3 d-flex align-items-center card-toggle" data-target="#stocksGraph">
               <div class="d-flex align-items-center">
                 <span style="color: #0077ff;">
                   <i class="fa-solid fa-warehouse card-icon" style="font-size: 50px;"></i>
@@ -95,8 +100,8 @@ define('ALLOW_ACCESS', true);
   <!-- JS Files -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../../asset/js/graph.js"></script>
+
 </body>
 </html>

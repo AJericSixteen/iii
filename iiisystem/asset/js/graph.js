@@ -1,105 +1,52 @@
-$(document).ready(function(){
-    // Toggle each graph when the card is clicked
-    $("#projectsCard").click(function(){
-      $("#projectsGraph").slideToggle();
-    });
-    $("#salesCard").click(function(){
-      $("#salesGraph").slideToggle();
-    });
-    $("#stocksCard").click(function(){
-      $("#stocksGraph").slideToggle();
-    });
-    
-    // Sample data for charts
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
-    // Projects Chart
-    const projectsCtx = document.getElementById('projectsChart').getContext('2d');
-    const projectsChart = new Chart(projectsCtx, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [{
-          label: 'Projects',
-          data: [2, 3, 1, 4, 2, 5, 3, 2, 4, 3, 2, 5],
-          borderColor: '#0c95b9',
-          backgroundColor: 'rgba(12,149,185,0.2)',
-          tension: 0.4,
-          fill: true,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
+$(document).ready(function () {
+  // Ensure graphs are always shown
+  $(".graph-container").show();
+
+  // Disable click events on cards (to prevent hiding the graphs)
+  $(".card-toggle").off("click");
+
+  // Chart.js options to fully disable interactions
+  const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
           legend: { display: false },
-          tooltip: { mode: 'index', intersect: false },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { precision: 0 }
-          }
-        }
-      }
-    });
-    
-    // Sales Chart
-    const salesCtx = document.getElementById('salesChart').getContext('2d');
-    const salesChart = new Chart(salesCtx, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [{
-          label: 'Sales',
-          data: [6, 4, 7, 5, 6, 7, 5, 6, 7, 4, 6, 7],
-          borderColor: '#ffbb02',
-          backgroundColor: 'rgba(255,187,2,0.2)',
-          tension: 0.4,
-          fill: true,
-        }]
+          tooltip: { enabled: false } // Disable tooltips
       },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: { mode: 'index', intersect: false },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { precision: 0 }
-          }
-        }
-      }
-    });
-    
-    // Stocks Chart
-    const stocksCtx = document.getElementById('stocksChart').getContext('2d');
-    const stocksChart = new Chart(stocksCtx, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [{
-          label: 'Stocks',
-          data: [4, 5, 3, 4, 6, 4, 5, 3, 4, 6, 5, 4],
-          borderColor: '#0077ff',
-          backgroundColor: 'rgba(0,119,255,0.2)',
-          tension: 0.4,
-          fill: true,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: { mode: 'index', intersect: false },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { precision: 0 }
-          }
-        }
-      }
-    });
-  });
+      hover: { mode: null }, // Disable hover effects
+      onClick: null, // Ensure clicks are ignored
+      interaction: { mode: null }, // Disables any interaction mode
+      events: [] // This disables all mouse and touch events on the chart
+  };
+
+  // Sample data for charts
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  // Function to create a chart
+  function createChart(ctxId, label, data, borderColor, bgColor) {
+      const ctx = document.getElementById(ctxId).getContext("2d");
+      return new Chart(ctx, {
+          type: "line",
+          data: {
+              labels: months,
+              datasets: [{
+                  label: label,
+                  data: data,
+                  borderColor: borderColor,
+                  backgroundColor: bgColor,
+                  tension: 0.4,
+                  fill: true
+              }]
+          },
+          options: chartOptions
+      });
+  }
+
+  // Initialize charts with non-clickable settings
+  createChart("projectsChart", "Projects", [2, 3, 1, 4, 2, 5, 3, 2, 4, 3, 2, 5], "#0c95b9", "rgba(12,149,185,0.2)");
+  createChart("salesChart", "Sales", [6, 4, 7, 5, 6, 7, 5, 6, 7, 4, 6, 7], "#ffbb02", "rgba(255,187,2,0.2)");
+  createChart("stocksChart", "Stocks", [4, 5, 3, 4, 6, 4, 5, 3, 4, 6, 5, 4], "#0077ff", "rgba(0,119,255,0.2)");
+
+  // Prevent click events on the canvas elements
+  $("canvas").css("pointer-events", "none");
+});
