@@ -5,56 +5,122 @@ body {
 
 .container {
     margin-top: 50px;
+    padding: 0 15px;
 }
 
 .card {
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
-    transition: transform 0.3s;
+    cursor: pointer;
+    margin-bottom: 20px;
 }
 
-.card:hover {
-    transform: scale(1.05);
+.table {
+    margin-bottom: 20px;
 }
 
+/* Card icon style */
 .card-icon {
     font-size: 50px;
     margin-right: 15px;
 }
 
-.dashboard-title {
-    font-weight: bold;
-    margin-bottom: 20px;
-}
+/* Dashboard Title Style */
 .dashboard-title {
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 20px;
     text-align: center;
     color: #333;
-  }
-  .divider {
+}
+
+.divider {
     border: none;
     border-top: 2px solid #007bff;
     width: 50%;
     margin: 20px auto;
-  }
-  .graph-container {
+}
+
+/* Graph container styling */
+.graph-container {
     margin-top: 20px;
     display: none; /* Hidden by default */
     padding: 20px;
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  canvas {
+}
+
+/* Canvas responsive sizing */
+canvas {
     max-width: 100%;
     height: auto;
-  }
-  .card {
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-  .card:hover {
-    transform: scale(1.02);
-  }
+}
+
+/* Responsive Design for Tablet and Below */
+@media (max-width: 768px) {
+    .container {
+        margin-top: 30px;
+    }
+    
+    /* Card adjustments */
+    .card {
+        text-align: center;
+    }
+    
+    .card .d-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    /* Adjust icon positioning */
+    .card-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    /* Adjust Dashboard title font size */
+    .dashboard-title {
+        font-size: 20px;
+    }
+    
+    /* Add responsiveness to form select dropdown */
+    .form-select {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+/* Responsive Design for Small Devices (Mobile) */
+@media (max-width: 480px) {
+    .dashboard-title {
+        font-size: 18px;
+    }
+
+    /* Adjust card icon size */
+    .card-icon {
+        font-size: 40px;
+    }
+
+    /* Adjust divider width for smaller screens */
+    .divider {
+        width: 70%;
+    }
+    
+    /* Project Table Responsiveness */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table th,
+    .table td {
+        white-space: nowrap;
+    }
+    
+    /* Ensure the status filter select dropdown is full width */
+    .form-select {
+        width: 100%;
+        margin-top: 10px;
+    }
+}

@@ -196,9 +196,3 @@ $projects = $project_result->fetch_all(MYSQLI_ASSOC);
 </script>
 
 </html>
-
-<?php
-echo "<pre>";
-print_r($projects);
-echo "</pre>";
-?>

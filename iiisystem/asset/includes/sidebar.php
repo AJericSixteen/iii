@@ -5,6 +5,10 @@ if (!defined('ALLOW_ACCESS')) {
     exit();
 }
 
+$current_page = basename($_SERVER['PHP_SELF']); // Get current page filename
+$stocks_pages = ['stocks.php', 'transactions.php']; // Pages under the Stocks section
+$stocks_active = in_array($current_page, $stocks_pages) ? 'show' : ''; // If in Stocks section, show dropdown
+
 ?>
 
 <head>
@@ -52,42 +56,55 @@ if (!defined('ALLOW_ACCESS')) {
                 <span>Project</span>
             </a>
         </li>
-        <li class="sidebar-item">
+        <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Receiving">
                 <i class="fa-solid fa-boxes-stacked"></i>
                 <span>Receiving</span>
             </a>
-        </li>
-        <li class="sidebar-item">
+        </li> -->
+        <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Back Order">
                 <i class="fa-solid fa-arrow-right-arrow-left"></i>
                 <span>Back Order</span>
             </a>
-        </li>
-        <li class="sidebar-item">
+        </li> -->
+        <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Return List">
                 <i class="fa-solid fa-arrow-rotate-right"></i>
                 <span>Return List</span>
             </a>
-        </li>
+        </li> -->
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;" title="Stocks">
+            <a href="#" class="sidebar-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#stocksDropdown"
+                style="text-decoration: none;" title="Stocks">
                 <i class="fa-solid fa-warehouse"></i>
                 <span>Stocks</span>
             </a>
+            <ul class="collapse list-unstyled ms-4 <?= $stocks_active ?>" id="stocksDropdown">
+                <li>
+                    <a href="../../md_dashboard/stocks/stocks.php"
+                        class="sidebar-link <?= $current_page == 'stocks.php' ? 'active' : '' ?>"
+                        style="text-decoration: none;">Stock Inventory</a>
+                </li>
+                <li>
+                    <a href="../../md_dashboard/stocks/transactions.php"
+                        class="sidebar-link <?= $current_page == 'transactions.php' ? 'active' : '' ?>"
+                        style="text-decoration: none;">Stock Transactions</a>
+                </li>
+            </ul>
         </li>
-        <li class="sidebar-item">
+        <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Sale List">
                 <i class="fa-solid fa-tag"></i>
                 <span>Sale List</span>
             </a>
-        </li>
-        <li class="sidebar-item">
+        </li> -->
+        <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Supplier List">
                 <i class="fa-solid fa-truck-ramp-box"></i>
                 <span>Supplier List</span>
             </a>
-        </li>
+        </li> -->
         <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Item List">
                 <i class="fa-solid fa-boxes-stacked"></i>
@@ -100,12 +117,12 @@ if (!defined('ALLOW_ACCESS')) {
                 <span>User List</span>
             </a>
         </li>
-        <li class="sidebar-item">
+        <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Settings">
                 <i class="fa-solid fa-cog"></i>
                 <span>Settings</span>
             </a>
-        </li>
+        </li> -->
     </ul>
     <div class="sidebar-footer">
         <a href="../../logout.php" class="sidebar-link" style="text-decoration: none;" title="Logout">

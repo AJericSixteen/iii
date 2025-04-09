@@ -85,23 +85,51 @@ $currentDate = date('M-d-Y');
                                 <div id="productContainer">
                                     <!-- Default Row -->
                                     <div class="row product-row">
-                                        <div class="p-2 col-md-3">
+                                        <div class="p-2 col-md-2">
                                             <label class="form-label">Product and Services:</label> <span class="red"> *
                                             </span>
-                                            <select name="services[]" class="form-control" required>
+                                            <select id="serviceSelect" name="services[]" class="form-control" required>
                                                 <option value="Banner">Banner</option>
                                                 <option value="Sign">Sign</option>
                                                 <option value="Lettering">Lettering</option>
                                                 <option value="Vehicles Signs">Vehicles Signs</option>
                                                 <option value="Decals">Decals</option>
                                                 <option value="Displays">Displays</option>
-                                                <option value="Event Management">Event Management</option>
-                                                <option value="Marketing Assessment">Marketing Assessment</option>
                                             </select>
-
                                         </div>
 
-                                        <div class="p-2 col-md-2">
+                                        <!-- Type of Tarpaulin (Hidden by default) -->
+                                        <div id="bannerOptions" class="p-2 col-md-2" style="display: none;">
+                                            <label class="form-label">Type of Tarpaulin:</label>
+                                            <select class="form-control">
+                                                <option value="Standard">Standard</option>
+                                                <option value="Premium">Premium</option>
+                                                <option value="Mesh">Mesh</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Sign Material Options (Hidden by default) -->
+                                        <div id="signOptions" class="p-2 col-md-2" style="display: none;">
+                                            <label class="form-label">Material:</label>
+                                            <select class="form-control">
+                                                <option value="Metal">Metal</option>
+                                                <option value="Tarpaulin">Tarpaulin</option>
+                                                <option value="Sticker">Sticker</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="p-2 col-md-1">
+                                            <label class="form-label">Height</label> <span class="red"> * </span>
+                                            <input type="number" name="quantity[]" class="form-control quantity" min="1"
+                                                required>
+                                        </div>
+                                        <div class="p-2 col-md-1">
+                                            <label class="form-label">Width</label> <span class="red"> * </span>
+                                            <input type="number" name="quantity[]" class="form-control quantity" min="1"
+                                                required>
+                                        </div>
+
+                                        <div class="p-2 col-md-1">
                                             <label class="form-label">Quantity</label> <span class="red"> * </span>
                                             <input type="number" name="quantity[]" class="form-control quantity" min="1"
                                                 required>
@@ -128,7 +156,7 @@ $currentDate = date('M-d-Y');
                                     </div>
                                 </div>
 
-                                <button type="button" class="btn btn-success btn-sm addRow mt-2">+</button>
+                                <button type="button" class="btn btn-success btn-sm addRow mt-2">Add Row</button>
                                 <button type="button" class="btn btn-primary btn-sm mt-2 addList">Add List</button>
                             </div>
                         </fieldset>
@@ -156,6 +184,22 @@ $currentDate = date('M-d-Y');
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../asset/js/new_project.js"></script>
+    <script>
+document.getElementById("serviceSelect").addEventListener("change", function () {
+    var selectedValue = this.value;
+    
+    // Hide all options initially
+    document.getElementById("bannerOptions").style.display = "none";
+    document.getElementById("signOptions").style.display = "none";
+
+    // Show relevant options based on selection
+    if (selectedValue === "Banner") {
+        document.getElementById("bannerOptions").style.display = "block";
+    } else if (selectedValue === "Sign") {
+        document.getElementById("signOptions").style.display = "block";
+    }
+});
+</script>
 </body>
 
 </html>

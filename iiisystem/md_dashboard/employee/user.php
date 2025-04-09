@@ -87,7 +87,7 @@ require("../../asset/database/db.php"); // Ensure database connection is include
                                         <div class="mb-3">
                                             <label for="role">Select Role:</label>
                                             <select name="role" id="role" class="form-control" required>
-                                                <option value="administrator">Administrator</option>
+                                                <option value="managing director">Administrator</option>
                                                 <option value="user">Staff</option>
                                             </select>
                                         </div>
