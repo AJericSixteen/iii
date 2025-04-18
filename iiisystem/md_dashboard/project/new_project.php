@@ -1,5 +1,7 @@
 <?php
 session_start();
+define('ALLOW_ACCESS', true);
+require('../../asset/database/db.php');
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -7,12 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-define('ALLOW_ACCESS', true);
-require("../../asset/database/db.php"); // Ensure database connection is included
-
-date_default_timezone_set('Asia/Manila');
-$currentDate = date('M-d-Y');
-
+$currentDate = date("Y-m-d");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,8 +22,8 @@ $currentDate = date('M-d-Y');
     <link rel="icon" href="../../asset/img/logo.png">
     <link rel="stylesheet" href="../../asset/css/Project/project.css">
 
-    <!-- Bootstrap (Optional) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -38,32 +35,33 @@ $currentDate = date('M-d-Y');
                     <h4>Create New Project</h4>
                 </div>
                 <div class="card-body">
-                    <form action="add_client.php" method="POST">
+                    <form id="projectForm" action="add_client.php" method="POST">
                         <div class="row">
                             <h4>Contact Information</h4>
                             <div class="p-2 col-6">
-                                <label for="name" class="form-label">Name:</label> <span class="red"> * </span>
-                                <input type="text" name="name" class="form-control" id="name" required>
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" name="name" id="name" class="form-control"
+                                    placeholder="Enter your name" required>
                             </div>
                             <div class="p-2 col-6">
-                                <label for="client_company" class="form-label">Company:</label> <span class="red"> *
-                                </span>
-                                <input type="text" name="client_company" class="form-control" id="client_company"
-                                    required>
+                                <label for="company" class="form-label">Company</label>
+                                <input type="text" name="company" id="company" class="form-control"
+                                    placeholder="Enter company name" required>
                             </div>
                             <div class="p-2 col-6">
-                                <label for="client_address" class="form-label">Address:</label> <span class="red"> *
-                                </span>
-                                <input type="text" name="client_address" class="form-control" id="client_address"
-                                    required>
+                                <label for="address" class="form-label">Address</label>
+                                <input type="text" name="address" id="address" class="form-control"
+                                    placeholder="Enter address" required>
                             </div>
                             <div class="p-2 col-6">
-                                <label for="client_phone" class="form-label">Phone:</label> <span class="red"> * </span>
-                                <input type="text" name="client_phone" class="form-control" id="client_phone" required>
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" name="phone" id="phone" class="form-control"
+                                    placeholder="Enter phone number" required>
                             </div>
                             <div class="p-2 col">
-                                <label for="client_email" class="form-label">Email:</label> <span class="red"> * </span>
-                                <input type="email" name="client_email" class="form-control" id="client_email" required>
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" id="email" class="form-control"
+                                    placeholder="Enter email" required>
                             </div>
                         </div>
                         <hr>
@@ -72,134 +70,56 @@ $currentDate = date('M-d-Y');
                             <div class="container mt-3">
                                 <div class="row">
                                     <div class="p-2 col-md-6">
-                                        <label class="form-label">Date Requested:</label>
-                                        <input type="text" name="date_requested" class="form-control"
-                                            value="<?php echo $currentDate; ?>" disabled>
+                                        <label for="date_requested" class="form-label">Date Requested</label>
+                                        <input type="date" name="date_requested" id="date_requested"
+                                            class="form-control" value="<?php echo $currentDate; ?>" required>
                                     </div>
                                     <div class="p-2 col-md-6">
-                                        <label class="form-label">Date Needed:</label> <span class="red"> * </span>
-                                        <input type="date" name="date_needed" class="form-control" required>
+                                        <label for="date_needed" class="form-label">Date Needed</label>
+                                        <input type="date" name="date_needed" id="date_needed" class="form-control"
+                                            required>
                                     </div>
                                 </div>
+                                <hr>
+                                <!-- HTML -->
 
-                                <div id="productContainer">
-                                    <!-- Default Row -->
-                                    <div class="row product-row">
-                                        <div class="p-2 col-md-2">
-                                            <label class="form-label">Product and Services:</label> <span class="red"> *
-                                            </span>
-                                            <select id="serviceSelect" name="services[]" class="form-control" required>
-                                                <option value="Banner">Banner</option>
-                                                <option value="Sign">Sign</option>
-                                                <option value="Lettering">Lettering</option>
-                                                <option value="Vehicles Signs">Vehicles Signs</option>
-                                                <option value="Decals">Decals</option>
-                                                <option value="Displays">Displays</option>
-                                            </select>
-                                        </div>
+                                <!-- Default Row -->
+                                <div id="productContainer"></div>
 
-                                        <!-- Type of Tarpaulin (Hidden by default) -->
-                                        <div id="bannerOptions" class="p-2 col-md-2" style="display: none;">
-                                            <label class="form-label">Type of Tarpaulin:</label>
-                                            <select class="form-control">
-                                                <option value="Standard">Standard</option>
-                                                <option value="Premium">Premium</option>
-                                                <option value="Mesh">Mesh</option>
-                                            </select>
-                                        </div>
 
-                                        <!-- Sign Material Options (Hidden by default) -->
-                                        <div id="signOptions" class="p-2 col-md-2" style="display: none;">
-                                            <label class="form-label">Material:</label>
-                                            <select class="form-control">
-                                                <option value="Metal">Metal</option>
-                                                <option value="Tarpaulin">Tarpaulin</option>
-                                                <option value="Sticker">Sticker</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="p-2 col-md-1">
-                                            <label class="form-label">Height</label> <span class="red"> * </span>
-                                            <input type="number" name="quantity[]" class="form-control quantity" min="1"
-                                                required>
-                                        </div>
-                                        <div class="p-2 col-md-1">
-                                            <label class="form-label">Width</label> <span class="red"> * </span>
-                                            <input type="number" name="quantity[]" class="form-control quantity" min="1"
-                                                required>
-                                        </div>
-
-                                        <div class="p-2 col-md-1">
-                                            <label class="form-label">Quantity</label> <span class="red"> * </span>
-                                            <input type="number" name="quantity[]" class="form-control quantity" min="1"
-                                                required>
-                                        </div>
-                                        <div class="p-2 col-md-2">
-                                            <label class="form-label">Price Per Piece</label> <span class="red"> *
-                                            </span>
-                                            <div class="input-group">
-                                                <span class="input-group-text">₱</span>
-                                                <input type="number" name="price[]" class="form-control price" min="1"
-                                                    required>
-                                            </div>
-                                        </div>
-                                        <div class="p-2 col-md-2">
-                                            <label class="form-label">Total</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">₱</span>
-                                                <input type="number" class="form-control total" disabled>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 d-flex align-items-center">
-                                            <button type="button" class="btn btn-danger btn-sm removeRow">X</button>
-                                        </div>
-                                    </div>
+                                <button type="button" class="btn btn-success addRow">Add Row</button>
+                                <button type="button" class="btn btn-primary addList">Add List</button>
+                                <table id="productTable" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Service</th>
+                                            <th>Tarp Type</th>
+                                            <th>Description</th>
+                                            <th>Height</th>
+                                            <th>Width</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody> <!-- This is crucial -->
+                                </table>
+                                <hr>
+                                <div class="d-flix justify-content-center">
+                                    <button type="submit" class="btn btn-primary">Add New Client</button>
+                                    <button type="button" class="btn btn-danger">Cancel</button>
                                 </div>
-
-                                <button type="button" class="btn btn-success btn-sm addRow mt-2">Add Row</button>
-                                <button type="button" class="btn btn-primary btn-sm mt-2 addList">Add List</button>
-                            </div>
-                        </fieldset>
-                        <hr>
-                        <table class="table table-striped" id="productTable" border="1">
-                            <thead>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </thead>
-                            <tbody></tbody>
-
-                        </table>
-                        <hr>
-                        <div class="d-flix justify-content-center">
-                            <button type="submit" class="btn btn-primary">Add New Client</button>
-                            <a href="./project.php" class="btn btn-danger">Cancel</a>
-                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../asset/js/new_project.js"></script>
-    <script>
-document.getElementById("serviceSelect").addEventListener("change", function () {
-    var selectedValue = this.value;
-    
-    // Hide all options initially
-    document.getElementById("bannerOptions").style.display = "none";
-    document.getElementById("signOptions").style.display = "none";
 
-    // Show relevant options based on selection
-    if (selectedValue === "Banner") {
-        document.getElementById("bannerOptions").style.display = "block";
-    } else if (selectedValue === "Sign") {
-        document.getElementById("signOptions").style.display = "block";
-    }
-});
-</script>
+
 </body>
 
 </html>

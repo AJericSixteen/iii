@@ -1,69 +1,61 @@
 <?php
-session_start();
-require("../../asset/database/db.php"); // Database connection
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../index.php");
-    exit();
-}
+require '../../asset/database/db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Capture and sanitize client details
-    $name = trim($_POST['name'] ?? '');
-    $company = trim($_POST['client_company'] ?? '');
-    $address = trim($_POST['client_address'] ?? '');
-    $phone = trim($_POST['client_phone'] ?? '');
-    $email = trim($_POST['client_email'] ?? '');
-    $date_needed = !empty($_POST['date_needed']) ? $_POST['date_needed'] : NULL;
+    // Get form data
+    $name = mysqli_real_escape_string($conn, $_POST['name']);
+    $company = mysqli_real_escape_string($conn, $_POST['company']);
+    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    
+    // Insert into client table
+    $sql = "INSERT INTO client (name, company, address, phone, email) 
+            VALUES (?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "sssss", $name, $company, $address, $phone, $email);
 
-    // Validate required fields
-    if (empty($name) || empty($company) || empty($address) || empty($phone) || empty($email)) {
-        die("Error: Missing required fields.");
-    }
+    if (mysqli_stmt_execute($stmt)) {
+        $client_id = mysqli_insert_id($conn);
 
-    // Insert client details
-    $query = "INSERT INTO client (name, company, address, phone, email) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("sssss", $name, $company, $address, $phone, $email);
-    if (!$stmt->execute()) {
-        die("Error inserting client: " . $stmt->error);
-    }
-    $client_id = $stmt->insert_id; // Get the inserted client ID
-    $stmt->close();
+        // Handle product rows (if there are multiple products)
+        if (isset($_POST['services'])) {
+            $services = $_POST['services'];
+            $tarp_types = $_POST['tarp_type'];
+            $descriptions = $_POST['description'];
+            $heights = $_POST['height'];
+            $widths = $_POST['width'];
+            $quantities = $_POST['quantity'];
+            $prices = $_POST['price'];
 
-    // Set default status
-    $status = "Pending";
+            $sql2 = "INSERT INTO project (
+                client_id, services, tarp_type, date_requested, date_needed, description, height, width, quantity, price, total
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // Ensure services, quantities, and prices exist
-    if (!empty($_POST['services']) && !empty($_POST['quantity']) && !empty($_POST['price'])) {
-        $query = "INSERT INTO project (client_id, date_requested, date_needed, status, age, services, quantity, price, total) 
-                  VALUES (?, NOW(), ?, ?, DATEDIFF(?, NOW()), ?, ?, ?, ?)";
-        $stmt = $conn->prepare($query);
+            $stmt2 = mysqli_prepare($conn, $sql2);
+            mysqli_stmt_bind_param($stmt2, "issssssiiid", $client_id, $services[0], $tarp_types[0], $_POST['date_requested'], $_POST['date_needed'], $descriptions[0], $heights[0], $widths[0], $quantities[0], $prices[0], $total);
 
-        foreach ($_POST['services'] as $index => $service) {
-            if (!isset($_POST['quantity'][$index]) || !isset($_POST['price'][$index])) {
-                continue; // Skip if quantity or price is missing
+            // Loop through all product rows
+            foreach ($services as $index => $service) {
+                $total = $quantities[$index] * $prices[$index]; // calculate total for this row
+
+                // Execute prepared statement for each product row
+                mysqli_stmt_bind_param($stmt2, "issssssiiid", $client_id, $services[$index], $tarp_types[$index], $_POST['date_requested'], $_POST['date_needed'], $descriptions[$index], $heights[$index], $widths[$index], $quantities[$index], $prices[$index], $total);
+
+                if (!mysqli_stmt_execute($stmt2)) {
+                    echo "Error inserting product: " . mysqli_stmt_error($stmt2);
+                }
             }
-
-            $service = trim($service);
-            $quantity = (float) $_POST['quantity'][$index];
-            $price = (float) $_POST['price'][$index];
-            $total = $quantity * $price;
-
-            $stmt->bind_param("issssidd", $client_id, $date_needed, $status, $date_needed, $service, $quantity, $price, $total);
-            if (!$stmt->execute()) {
-                die("Error inserting project: " . $stmt->error);
-            }
+            header("Location: ./project.php");
+            exit();
+        } else {
+            echo "No products added.";
         }
-        $stmt->close();
+    } else {
+        echo "Error inserting into client: " . mysqli_stmt_error($stmt);
     }
-
-    // Redirect after successful insertion
-    header("Location: project.php?success=Project added successfully");
-    exit();
-} else {
-    header("Location: new_project.php");
-    exit();
+    mysqli_stmt_close($stmt);
+    mysqli_stmt_close($stmt2);
+    mysqli_close($conn);
 }
 ?>
