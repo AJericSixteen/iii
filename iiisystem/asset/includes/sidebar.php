@@ -6,8 +6,9 @@ if (!defined('ALLOW_ACCESS')) {
 }
 
 $current_page = basename($_SERVER['PHP_SELF']); // Get current page filename
-$stocks_pages = ['stocks.php', 'transactions.php']; // Pages under the Stocks section
+$stocks_pages = ['stocks.php', 'transactions.php', 'add_stocks.php', 'deduct_stocks.php'];
 $stocks_active = in_array($current_page, $stocks_pages) ? 'show' : ''; // If in Stocks section, show dropdown
+
 
 ?>
 
@@ -81,6 +82,16 @@ $stocks_active = in_array($current_page, $stocks_pages) ? 'show' : ''; // If in 
                 <span>Stocks</span>
             </a>
             <ul class="collapse list-unstyled ms-4 <?= $stocks_active ?>" id="stocksDropdown">
+            <li>
+                    <a href="../../md_dashboard/stocks/add_stocks.php"
+                        class="sidebar-link <?= $current_page == 'add_stocks.php' ? 'active' : '' ?>"
+                        style="text-decoration: none;">Add Stocks</a>
+                </li>
+                <li>
+                    <a href="../../md_dashboard/stocks/deduct_stocks.php"
+                        class="sidebar-link <?= $current_page == 'deduct_stocks.php' ? 'active' : '' ?>"
+                        style="text-decoration: none;">Deduct Stocks</a>
+                </li>
                 <li>
                     <a href="../../md_dashboard/stocks/stocks.php"
                         class="sidebar-link <?= $current_page == 'stocks.php' ? 'active' : '' ?>"

@@ -23,6 +23,8 @@ include('../../asset/database/db.php');
 
   <!-- ICON LOGO -->
   <link rel="icon" href="../../asset/img/logo.png">
+  <!-- datatable -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
   <!-- FontAwesome Icons -->
   <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
@@ -61,7 +63,7 @@ include('../../asset/database/db.php');
       <div class="container">
         <div class="row g-4">
           <!-- Projects, Sales, and Stocks Cards -->
-          <div class="col-md-4">
+          <div class="col-md-6">
             <div class="card p-3 d-flex align-items-center card-toggle" data-target="#projectsGraph">
               <div class="d-flex align-items-center">
                 <span style="color: #0c95b9;">
@@ -91,7 +93,7 @@ include('../../asset/database/db.php');
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-6">
             <div class="card p-3 d-flex align-items-center card-toggle" data-target="#salesGraph">
               <div class="d-flex align-items-center">
                 <span style="color: #ffbb02;">
@@ -108,7 +110,7 @@ include('../../asset/database/db.php');
             </div>
           </div>
 
-          <div class="col-md-4">
+          <!-- <div class="col-md-4">
             <div class="card p-3 d-flex align-items-center card-toggle" data-target="#stocksGraph">
               <div class="d-flex align-items-center">
                 <span style="color: #0077ff;">
@@ -123,7 +125,7 @@ include('../../asset/database/db.php');
             <div class="graph-container" id="stocksGraph">
               <canvas id="stocksChart"></canvas>
             </div>
-          </div>
+          </div> -->
         </div>
 
         <!-- Real-Time Stock Levels -->
@@ -136,8 +138,8 @@ include('../../asset/database/db.php');
 
           <div class="col-12">
             <div class="card p-3">
-              <h5 class="text-center">Real-Time Stock Levels (Under Minimum)</h5>
-              <table class="table table-striped">
+              <h5 class="text-center">Real-Time Stock Levels</h5>
+              <table class="table table-striped" id="stockTable">
                 <thead>
                   <tr>
                     <th>Item Name</th>
@@ -153,28 +155,31 @@ include('../../asset/database/db.php');
                   // Assuming $result is your query result
                   while ($row = mysqli_fetch_assoc($result)):
                     $quantity = $row['quantity'];
-                    $min_stock = $row['min_stocks']; // Assuming you have min_stocks in your database
+                    $min_stock = $row['min_stocks'];
                     $status = "";
 
                     // Determine the stock level status
-                    if ($quantity < $min_stock) {
-                      $status = "<span style='color: orange;'>Under Minimum</span>";
-                    } elseif ($quantity == 0) {
-                      $status = "<span style='color: red;'>Out of Stock</span>";
-                    } elseif ($quantity >= $min_stock) {
-                      $status = "<span style='color: green;'>In Stock</span>";
+                    if ($quantity == 0) {
+                      $status = "<span class='badge bg-danger'>Out of Stock</span>";
+                    } elseif ($quantity > 0 && $quantity < $min_stock) {
+                      $status = "<span class='badge bg-dark'>Under Stock</span>";
                     }
-                    ?>
-                    <tr>
-                      <td><?= htmlspecialchars($row['item_name']) ?></td>
-                      <td><?= htmlspecialchars($row['category']) ?></td>
-                      <td><?= $quantity ?></td>
-                      <td><?= date("M-d-Y", strtotime($row['last_updated'])) ?></td>
-                      <td><?= date("h:i A", strtotime($row['last_updated'])) ?></td>
-                      <td><?= $status ?></td> <!-- Display the stock level status -->
-                    </tr>
-                  <?php endwhile; ?>
+
+                    // Only display Out of Stock or Under Stock
+                    if ($status): // This ensures that only the relevant statuses are displayed
+                      ?>
+                      <tr>
+                        <td><?= htmlspecialchars($row['item_name']) ?></td>
+                        <td><?= htmlspecialchars($row['category']) ?></td>
+                        <td><?= $quantity ?></td>
+                        <td><?= date("M-d-Y", strtotime($row['last_updated'])) ?></td>
+                        <td><?= date("h:i A", strtotime($row['last_updated'])) ?></td>
+                        <td><?= $status ?></td> <!-- Display only Out of Stock or Under Stock -->
+                      </tr>
+                    <?php endif; endwhile; ?>
                 </tbody>
+
+
               </table>
             </div>
           </div>
@@ -225,7 +230,7 @@ include('../../asset/database/db.php');
                         <td><?= htmlspecialchars($row['project_id']); ?></td>
                         <td><?= htmlspecialchars($row['name']); ?></td> <!-- Display client name -->
                         <td><?= htmlspecialchars($row['services']); ?></td> <!-- Display project/service name -->
-                        <td><?= htmlspecialchars($row['status']); ?></td>
+                        <td><?= ucfirst(strtolower($row['status'])); ?></td>
                         <td><?= htmlspecialchars($row['date_needed']); ?></td>
 
                         <!-- Check if the status is "Delivered" before displaying the age -->
@@ -246,7 +251,7 @@ include('../../asset/database/db.php');
           <div class="col-md-6">
             <div class="card p-3">
               <h5 class="text-center">Frequently Used Stock Items</h5>
-              <table class="table table-striped">
+              <table class="table table-striped" id="frequentItemsTable">
                 <thead>
                   <tr>
                     <th>Item Name</th>
@@ -256,14 +261,14 @@ include('../../asset/database/db.php');
                 <tbody>
                   <?php
                   $query = "
-          SELECT 
+            SELECT 
             s.item_name,
             COUNT(st.transaction_id) AS usage_count
-          FROM stock_transaction st
-          JOIN stocks s ON st.stock_id = s.stock_id
-          WHERE st.transaction_type = 'deduct'
+             FROM stock_transaction st
+            JOIN stocks s ON st.stock_id = s.stock_id
+           WHERE st.transaction_type = 'deduct'
           GROUP BY st.stock_id
-          ORDER BY usage_count DESC
+            ORDER BY usage_count DESC
           LIMIT 10
         ";
                   $result = mysqli_query($conn, $query);
@@ -282,15 +287,15 @@ include('../../asset/database/db.php');
         </div>
       </div>
     </div>
-
-    <!-- JS Files -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../../asset/js/graph.js"></script>
-    <script src="../../asset/js/project_tracker.js"></script>
-
   </div>
 </body>
 
 </html>
+
+<!-- JS Files -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../../asset/js/graph.js"></script>
+<script src="../../asset/js/dashboard_table.js"></script>

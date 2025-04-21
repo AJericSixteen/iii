@@ -39,6 +39,16 @@ $project_stmt->bind_param("i", $client_id);
 $project_stmt->execute();
 $project_result = $project_stmt->get_result();
 $projects = $project_result->fetch_all(MYSQLI_ASSOC);
+
+// Check if all projects are delivered
+$all_delivered = true;
+foreach ($projects as $project) {
+    if ($project['status'] != 'Delivered') {
+        $all_delivered = false;
+        break;
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -87,6 +97,24 @@ $projects = $project_result->fetch_all(MYSQLI_ASSOC);
                         </div>
                     </div>
                     <hr>
+
+                    <!-- Master Dropdown for Updating All Projects -->
+                    <form method="POST" action="update_multiple_status.php" onsubmit="return confirmUpdate();">
+                        <input type="hidden" name="client_id" value="<?= $client_id ?>"> <!-- Pass the client_id -->
+                        <div class="mb-3">
+                            <label for="master_status" class="form-label">Select Status to Apply to All Projects</label>
+                            <select name="master_status" class="form-select" required>
+                                <option value="">Select Status for all Projects</option>
+                                <option value="Pending">Pending</option>
+                                <option value="On Production">On Production</option>
+                                <option value="For Delivery">For Delivery</option>
+                                <option value="Delivered">Delivered</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update All Projects</button>
+                    </form>
+
+                    <hr>
                     <table class="table">
                         <thead>
                             <tr>
@@ -112,14 +140,21 @@ $projects = $project_result->fetch_all(MYSQLI_ASSOC);
                                             $date_needed = new DateTime($project['date_needed']);
                                             $today = new DateTime();
 
-                                            if ($today > $date_needed) {
-                                                $interval = $date_needed->diff($today);
-                                                echo '<span class="text-danger fw-bold">' . $interval->days . ' days delayed</span>';
+                                            if ($project['status'] == 'Completed') {
+                                                echo '<span class="badge bg-success">Completed</span>';
+                                            } elseif ($project['status'] != 'Delivered') {
+                                                if ($today > $date_needed) {
+                                                    $interval = $date_needed->diff($today);
+                                                    echo '<span class="badge bg-danger fw-bold">' . $interval->days . ' days delayed</span>';
+                                                } else {
+                                                    echo '<span class="text-success">0</span>';
+                                                }
                                             } else {
-                                                echo '<span class="text-success">0</span>';
+                                                echo '<span class="badge bg-success">Delivered</span>';
                                             }
                                             ?>
                                         </td>
+
                                         <td><?= htmlspecialchars($project['services']) ?></td>
                                         <td><?= htmlspecialchars($project['quantity']) ?></td>
 
@@ -127,10 +162,11 @@ $projects = $project_result->fetch_all(MYSQLI_ASSOC);
                                         <td>
                                             <?php
                                             $status_colors = [
-                                                'Pending' => 'text-danger',
-                                                'On Production' => 'text-warning',
-                                                'For Delivery' => 'text-primary',
-                                                'Delivered' => 'text-success'
+                                                'Pending' => 'badge bg-secondary',
+                                                'On Production' => 'badge bg-warning',
+                                                'For Delivery' => 'badge bg-primary',
+                                                'Delivered' => 'badge bg-success',
+                                                'Completed' => 'badge bg-success',
                                             ];
                                             $status_class = $status_colors[$project['status']] ?? 'text-secondary';
                                             ?>
@@ -140,31 +176,26 @@ $projects = $project_result->fetch_all(MYSQLI_ASSOC);
 
                                         <!-- Action Column -->
                                         <td>
-                                            <form method="POST" action="update_status.php"
-                                                onsubmit="return confirmUpdate(this);">
-                                                <input type="hidden" name="client_id" value="<?= $client['client_id'] ?>">
-                                                <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
+    <form method="POST" action="update_status.php" onsubmit="return confirmUpdate(this);">
+        <input type="hidden" name="client_id" value="<?= $client['client_id'] ?>">
+        <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
 
-                                                <select name="status" class="form-select mt-2">
-                                                    <?php
-                                                    $statuses = ['Pending', 'On Production', 'For Delivery', 'Delivered'];
-                                                    foreach ($statuses as $status) {
-                                                        $selected = ($project['status'] == $status) ? 'selected' : '';
-                                                        echo "<option value='$status' $selected>$status</option>";
-                                                    }
-                                                    ?>
-                                                </select>
+        <select name="status" class="form-select mt-2" 
+            <?php if ($project['status'] == 'Delivered') echo 'disabled'; ?>>
+            <?php
+            $statuses = ['Pending', 'On Production', 'For Delivery', 'Delivered'];
+            foreach ($statuses as $status) {
+                $selected = ($project['status'] == $status) ? 'selected' : '';
+                echo "<option value='$status' $selected>$status</option>";
+            }
+            ?>
+        </select>
 
-                                                <button type="submit" class="btn btn-primary mt-2">Update</button>
-                                            </form>
-                                            <script>
-                                                function confirmUpdate(form) {
-                                                    let status = form.status.value;
-                                                    return confirm("Are you sure you want to update the project status to '" + status + "'?");
-                                                }
-                                            </script>
-
-                                        </td>
+        <?php if ($project['status'] != 'Delivered'): ?>
+            <button type="submit" class="btn btn-primary mt-2">Update</button>
+        <?php endif; ?>
+    </form>
+</td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -174,6 +205,23 @@ $projects = $project_result->fetch_all(MYSQLI_ASSOC);
                             <?php endif; ?>
                         </tbody>
                     </table>
+
+                    <!-- Show Close Project Button if All Projects are Delivered -->
+                    <?php if ($all_delivered): ?>
+                        <div class="mt-4">
+                            <h4>All Projects Delivered</h4>
+                            <form method="POST" action="complete_project.php" enctype="multipart/form-data">
+                                <input type="hidden" name="client_id" value="<?= $client_id ?>"> <!-- Add this line -->
+                                <div class="mb-3">
+                                    <label for="delivery_receipt" class="form-label">Upload Delivery Receipt</label>
+                                    <input type="file" class="form-control" id="delivery_receipt" name="delivery_receipt"
+                                        required>
+                                </div>
+                                <button type="submit" class="btn btn-success mt-2">Upload Delivery Receipt</button>
+                            </form>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
                 <div class="card-footer text-end">
                     <a href="project.php" class="btn btn-secondary">Back</a>
@@ -182,17 +230,24 @@ $projects = $project_result->fetch_all(MYSQLI_ASSOC);
         </div>
     </div>
 
-</body>
-<script>
-    function checkStatus(selectElement, projectId) {
-        let fileUploadDiv = document.getElementById('file-upload-' + projectId);
+    <script>
+        function checkStatus(selectElement, projectId) {
+            let fileUploadDiv = document.getElementById('file-upload-' + projectId);
 
-        if (selectElement.value === 'Delivered') {
-            fileUploadDiv.style.display = 'block';
-        } else {
-            fileUploadDiv.style.display = 'none';
+            if (selectElement.value === 'Delivered') {
+                fileUploadDiv.style.display = 'block';
+            } else {
+                fileUploadDiv.style.display = 'none';
+            }
         }
+
+    </script>
+    <script>
+    function confirmUpdate() {
+        return confirm("Are you sure you want to update all the project statuses?");
     }
 </script>
+
+</body>
 
 </html>

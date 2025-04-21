@@ -47,48 +47,88 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: stocks.php");
     exit();
 }
+
+define('ALLOW_ACCESS', true);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Stock</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../asset/css/style.css">
 </head>
+
 <body>
-    <div class="container">
-        <h2>Edit Stock</h2>
-        <?php if(isset($_SESSION['error'])): ?>
-            <p style="color: red;"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></p>
-        <?php endif; ?>
-        <form method="POST" action="edit_stock.php">
-            <input type="hidden" name="stock_id" value="<?= htmlspecialchars($stock['stock_id']); ?>">
-            
-            <label>Item Name:</label>
-            <input type="text" name="item_name" value="<?= htmlspecialchars($stock['item_name']); ?>" required>
-            
-            <label>Category:</label>
-            <select name="category" required>
-                <option value="Printing Materials" <?= ($stock['category'] == 'Printing Materials') ? 'selected' : ''; ?>>Printing Materials</option>
-                <option value="Hardware & Fasteners" <?= ($stock['category'] == 'Hardware & Fasteners') ? 'selected' : ''; ?>>Hardware & Fasteners</option>
-                <option value="Tapes & Adhesives" <?= ($stock['category'] == 'Tapes & Adhesives') ? 'selected' : ''; ?>>Tapes & Adhesives</option>
-                <option value="Tools & Accessories" <?= ($stock['category'] == 'Tools & Accessories') ? 'selected' : ''; ?>>Tools & Accessories</option>
-            </select>
+    <div class="wrapper">
+        <?php require '../../asset/includes/sidebar.php'; ?>
 
-            <label>Quantity:</label>
-            <input type="number" name="quantity" value="<?= htmlspecialchars($stock['quantity']); ?>" required>
+        <div class="main p-3">
+            <div class="container">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light text-black">
+                        <h5>Edit Stock</h5>
+                    </div>
+                    <div class="card-body">
+                        <?php if (isset($_SESSION['error'])): ?>
+                            <div class="alert alert-danger">
+                                <?php echo $_SESSION['error'];
+                                unset($_SESSION['error']); ?>
+                            </div>
+                        <?php endif; ?>
+                        <form method="POST" action="edit_stock.php">
+                            <input type="hidden" name="stock_id" value="<?= htmlspecialchars($stock['stock_id']); ?>">
 
-            <label>Min-Stock:</label>
-            <input type="number" name="min_stock" value="<?= htmlspecialchars($stock['min_stocks']); ?>" required>
+                            <div class="mb-3">
+                                <label for="itemName" class="form-label">Item Name</label>
+                                <input type="text" id="itemName" name="item_name" class="form-control"
+                                    value="<?= htmlspecialchars($stock['item_name']); ?>" required>
+                            </div>
 
-            <label>Max-Stock:</label>
-            <input type="number" name="max_stock" value="<?= htmlspecialchars($stock['max_stocks']); ?>" required>
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select id="category" name="category" class="form-select" required>
+                                    <option value="Printing Materials" <?= ($stock['category'] == 'Printing Materials') ? 'selected' : ''; ?>>Printing Materials</option>
+                                    <option value="Hardware & Fasteners" <?= ($stock['category'] == 'Hardware & Fasteners') ? 'selected' : ''; ?>>Hardware & Fasteners</option>
+                                    <option value="Tapes & Adhesives" <?= ($stock['category'] == 'Tapes & Adhesives') ? 'selected' : ''; ?>>Tapes & Adhesives</option>
+                                    <option value="Tools & Accessories" <?= ($stock['category'] == 'Tools & Accessories') ? 'selected' : ''; ?>>Tools & Accessories</option>
+                                </select>
+                            </div>
 
-            <button type="submit">Update Stock</button>
-        </form>
-        <a href="stocks.php">Back to Stocks</a>
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" id="quantity" name="quantity" class="form-control"
+                                    value="<?= htmlspecialchars($stock['quantity']); ?>" required readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="minStock" class="form-label">Min-Stock</label>
+                                <input type="number" id="minStock" name="min_stock" class="form-control"
+                                    value="<?= htmlspecialchars($stock['min_stocks']); ?>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="maxStock" class="form-label">Max-Stock</label>
+                                <input type="number" id="maxStock" name="max_stock" class="form-control"
+                                    value="<?= htmlspecialchars($stock['max_stocks']); ?>" required>
+                            </div>
+
+                            <div class="d-flex">
+                                <button type="submit" class="btn btn-primary me-2"
+                                    onclick="return confirm('Are you sure you\'re done editing?')">Submit</button>
+                                <a href="stocks.php" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

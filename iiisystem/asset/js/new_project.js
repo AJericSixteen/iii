@@ -13,7 +13,7 @@ function createProductRow() {
             </select>
         </div>
         <div class="p-2 col-md-2">
-            <label class="form-label">Tarp Type</label>
+            <label class="form-label">Matterial Type</label>
             <select name="tarp_type[]" class="form-select" required>
                 <option value="Matte">Matte</option>
                 <option value="Gloss">Gloss</option>
@@ -72,7 +72,7 @@ $(document).ready(function () {
     $('#productContainer').on('change', 'select[name="services[]"]', function () {
         let row = $(this).closest('.product-row');
         let service = $(this).val();
-        let tarpTypeSelect = row.find('select[name="tarp_type[]"]');
+        let tarpTypeSelect = row.find('select[name="tarp_type[]"]'); 
         
         // Clear existing options
         tarpTypeSelect.empty();
