@@ -99,9 +99,26 @@ include('../../asset/database/db.php');
                 <span style="color: #ffbb02;">
                   <i class="fa-solid fa-tag card-icon" style="font-size: 50px;"></i>
                 </span>
+                <?php
+                // Query to calculate the total sum of the 'total' column for the current year
+                $query_sales = "
+                                SELECT SUM(total) AS total_sales
+                                FROM project
+                                WHERE YEAR(date_requested) = YEAR(CURDATE())
+                                ";
+                $result_sales = mysqli_query($conn, $query_sales);
+
+                if ($result_sales) {
+                  $row_sales = mysqli_fetch_assoc($result_sales);
+                  $totalSales = $row_sales['total_sales'] ? $row_sales['total_sales'] : 0; // If no sales, set to 0
+                } else {
+                  $totalSales = 0; // If query fails, set to 0
+                }
+                ?>
+
                 <div>
-                  <h5>Gross Sales</h5>
-                  <p class="mb-0">6</p>
+                  <h5>Sales</h5>
+                  <p class="mb-0"><span>₱ </span><?= number_format($totalSales, 2) ?></p> <!-- Display total sales -->
                 </div>
               </div>
             </div>
@@ -162,7 +179,7 @@ include('../../asset/database/db.php');
                     if ($quantity == 0) {
                       $status = "<span class='badge bg-danger'>Out of Stock</span>";
                     } elseif ($quantity > 0 && $quantity < $min_stock) {
-                      $status = "<span class='badge bg-dark'>Under Stock</span>";
+                      $status = "<span class='badge bg-dark'>Under Minimum Stock</span>";
                     }
 
                     // Only display Out of Stock or Under Stock
@@ -213,16 +230,22 @@ include('../../asset/database/db.php');
                     <?php
                     // Query to fetch all projects with their statuses and client names
                     $query = "
-                      SELECT 
-                        p.project_id, 
-                        c.name, 
-                        p.status, 
-                        p.date_needed, 
-                        DATEDIFF(CURDATE(), p.date_needed) AS age, -- Calculate the delay in days
-                        p.services  -- Assuming there's a field for the project/service name
-                      FROM project p
-                      JOIN client c ON p.client_id = c.client_id  -- Join with the clients table
-                    ";
+                    SELECT 
+                      p.project_id, 
+                      c.name, 
+                      p.status, 
+                      p.date_needed, 
+                      CASE 
+                        WHEN p.status = 'completed' THEN '—'  -- Do not display delay for completed projects
+                        WHEN p.date_needed < CURDATE() THEN DATEDIFF(CURDATE(), p.date_needed)  -- Calculate delay if overdue
+                        ELSE 0  -- No delay if the due date is in the future
+                      END AS age, 
+                      p.services  
+                    FROM project p
+                    JOIN client c ON p.client_id = c.client_id  
+                    WHERE LOWER(p.status) != 'completed'  -- Exclude completed projects
+                  ";
+
                     $result = mysqli_query($conn, $query);
                     while ($row = mysqli_fetch_assoc($result)):
                       ?>

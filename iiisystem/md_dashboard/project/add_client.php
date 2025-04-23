@@ -33,14 +33,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt2 = mysqli_prepare($conn, $sql2);
-            mysqli_stmt_bind_param($stmt2, "issssssiiid", $client_id, $services[0], $tarp_types[0], $_POST['date_requested'], $_POST['date_needed'], $descriptions[0], $heights[0], $widths[0], $quantities[0], $prices[0], $total);
-
+            
             // Loop through all product rows
             foreach ($services as $index => $service) {
-                $total = $quantities[$index] * $prices[$index]; // calculate total for this row
+                // Calculate total (multiply quantity by price)
+                $total = $quantities[$index] * $prices[$index]; 
+
+                // Round price and total to 2 decimal places
+                $formatted_price = round($prices[$index], 2);
+                $formatted_total = round($total, 2);
 
                 // Execute prepared statement for each product row
-                mysqli_stmt_bind_param($stmt2, "issssssiiid", $client_id, $services[$index], $tarp_types[$index], $_POST['date_requested'], $_POST['date_needed'], $descriptions[$index], $heights[$index], $widths[$index], $quantities[$index], $prices[$index], $total);
+                mysqli_stmt_bind_param($stmt2, "issssssiiid", $client_id, $services[$index], $tarp_types[$index], $_POST['date_requested'], $_POST['date_needed'], $descriptions[$index], $heights[$index], $widths[$index], $quantities[$index], $formatted_price, $formatted_total);
 
                 if (!mysqli_stmt_execute($stmt2)) {
                     echo "Error inserting product: " . mysqli_stmt_error($stmt2);

@@ -17,7 +17,7 @@ $query = "
     SELECT c.client_id, c.name, c.company, c.address, c.phone, c.email, 
            COUNT(p.project_id) AS project_count
     FROM client c
-    LEFT JOIN project p ON c.client_id = p.client_id
+    LEFT JOIN project p ON c.client_id = p.client_id AND p.status != 'Completed' -- Exclude completed projects
     GROUP BY c.client_id
     ORDER BY c.client_id ASC";
 
@@ -69,6 +69,9 @@ $result = $conn->query($query);
                         </thead>
                         <tbody>
                             <?php while ($row = $result->fetch_assoc()): ?>
+                                <?php if ($row['project_count'] == 0)
+                                    continue; ?>
+                                <!-- Skip clients with no active projects -->
                                 <tr>
                                     <td><?= $row['client_id'] ?></td>
                                     <td><?= htmlspecialchars($row['name']) ?></td>
@@ -99,6 +102,7 @@ $result = $conn->query($query);
                                 </tr>
                             <?php endwhile; ?>
                         </tbody>
+
                     </table>
                 </div>
             </div>
