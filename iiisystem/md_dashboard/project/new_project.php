@@ -82,7 +82,7 @@ $currentDate = date("Y-m-d");
                                     <div class="p-2 col-md-6">
                                         <label for="date_requested" class="form-label">Date Requested</label>
                                         <input type="date" name="date_requested" id="date_requested"
-                                            class="form-control" value="<?php echo $currentDate; ?>" required>
+                                            class="form-control" value="<?php echo $currentDate; ?>" required readonly>
                                     </div>
                                     <div class="p-2 col-md-6">
                                         <label for="date_needed" class="form-label">Date Needed</label>
@@ -118,7 +118,7 @@ $currentDate = date("Y-m-d");
                                 <hr>
                                 <div class="d-flix justify-content-center">
                                     <button type="submit" class="btn btn-primary">Add New Client</button>
-                                    <button type="button" class="btn btn-danger">Cancel</button>
+                                    <a  href="./project.php" type="button" class="btn btn-danger">Cancel</a>
                                 </div>
                     </form>
                 </div>

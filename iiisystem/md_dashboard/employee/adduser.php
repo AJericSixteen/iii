@@ -35,29 +35,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt1->bind_param("sssss", $firstname, $lastname, $phone, $email, $targetFilePath);
 
         $firstname = $_POST['firstname'];
-        $lastname  = $_POST['lastname'];
-        $phone     = $_POST['phone'];
-        $email     = $_POST['email'];
+        $lastname = $_POST['lastname'];
+        $phone = $_POST['phone'];
+        $email = $_POST['email'];
 
         $stmt1->execute();
         $user_id = $conn->insert_id;
 
         // ✅ Insert account info with hashed password
         $stmt2 = $conn->prepare("INSERT INTO account (user_id, username, password, role) VALUES (?, ?, ?, ?)");
-        
+
         $username = $_POST['username'];
         $password = $_POST['password'];
-        $role     = $_POST['role'];
+        $role = $_POST['role'];
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        
+
         $stmt2->bind_param("isss", $user_id, $username, $hashed_password, $role);
         $stmt2->execute();
 
         $stmt1->close();
         $stmt2->close();
         $conn->close();
-
-        echo "<script>alert('✅ User and account created successfully!')</script>";
+        echo "<script>alert('User successfully added!');window.location.href = 'user.php';</script>";
     } catch (Exception $e) {
         echo $e->getMessage();
     }

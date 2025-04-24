@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: ./md_dashboard/dashboard/dashboard.php");
             } else {
                 // Stuff Dashboard
-                header("Location: dashboard.php");
+                header("Location: ./staff_dashboard/dashboard/dashboard.php");
             }
             exit();
             
