@@ -2,6 +2,8 @@
 session_start();
 require("../../asset/database/db.php");
 
+// include '../../asset/includes/auth_managing_director.php';
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");

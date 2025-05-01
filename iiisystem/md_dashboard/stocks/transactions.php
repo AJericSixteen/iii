@@ -9,6 +9,9 @@ define('ALLOW_ACCESS', true);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Transactions</title>
+    <!-- icon -->
+    <link rel="icon" href="../../asset/img/logo.png" type="image/x-icon">
+    <!-- bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 </head>
@@ -18,8 +21,8 @@ define('ALLOW_ACCESS', true);
         <?php require '../../asset/includes/sidebar.php'; ?>
         <div class="main p-3">
             <div class="card">
-                <div class="card-header">
-                    <h5>Stock Transaction</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Stock Transaction</h5>
                 </div>
                 <div class="card-body">
                     <table id="transactionTable" class="table table-striped" style="width:100%">
@@ -36,6 +39,9 @@ define('ALLOW_ACCESS', true);
                         </thead>
                         <tbody>
                             <?php
+                            $currentMonth = date('m');
+                            $currentYear = date('Y');
+                            
                             $query = "
                                 SELECT 
                                     st.transaction_id,
@@ -51,13 +57,15 @@ define('ALLOW_ACCESS', true);
                                 FROM stock_transaction st
                                 JOIN stocks s ON st.stock_id = s.stock_id
                                 JOIN user_info u ON st.user_id = u.user_id
-                                ORDER BY st.date DESC  -- Sorting by the date in descending order
+                                WHERE MONTH(st.date) = '$currentMonth' AND YEAR(st.date) = '$currentYear'
+                                ORDER BY st.date DESC
                             ";
                             $result = mysqli_query($conn, $query);
-                            while ($row = mysqli_fetch_assoc($result)) : ?>
+                            while ($row = mysqli_fetch_assoc($result)): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($row['transaction_id']); ?></td>
-                                    <td><?= htmlspecialchars($row['firstname']) . " " . htmlspecialchars($row['lastname']); ?></td>
+                                    <td><?= htmlspecialchars($row['firstname']) . " " . htmlspecialchars($row['lastname']); ?>
+                                    </td>
                                     <td><?= htmlspecialchars($row['transaction_type']); ?></td>
                                     <td><?= htmlspecialchars($row['item_name']); ?></td>
                                     <td><?= htmlspecialchars($row['quantity']); ?></td>

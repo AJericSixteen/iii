@@ -23,14 +23,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $services = $_POST['services'];
             $tarp_types = $_POST['tarp_type'];
             $descriptions = $_POST['description'];
-            $heights = $_POST['height'];
-            $widths = $_POST['width'];
             $quantities = $_POST['quantity'];
             $prices = $_POST['price'];
 
             $sql2 = "INSERT INTO project (
-                client_id, services, tarp_type, date_requested, date_needed, description, height, width, quantity, price, total
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                client_id, services, tarp_type, date_requested, date_needed, description, quantity, price, total
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt2 = mysqli_prepare($conn, $sql2);
             
@@ -44,7 +42,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $formatted_total = round($total, 2);
 
                 // Execute prepared statement for each product row
-                mysqli_stmt_bind_param($stmt2, "issssssiiid", $client_id, $services[$index], $tarp_types[$index], $_POST['date_requested'], $_POST['date_needed'], $descriptions[$index], $heights[$index], $widths[$index], $quantities[$index], $formatted_price, $formatted_total);
+                mysqli_stmt_bind_param(
+                    $stmt2, 
+                    "isssssiid", 
+                    $client_id, 
+                    $services[$index], 
+                    $tarp_types[$index], 
+                    $_POST['date_requested'], 
+                    $_POST['date_needed'], 
+                    $descriptions[$index], 
+                    $quantities[$index], 
+                    $formatted_price, 
+                    $formatted_total
+                );
 
                 if (!mysqli_stmt_execute($stmt2)) {
                     echo "Error inserting product: " . mysqli_stmt_error($stmt2);
@@ -58,8 +68,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         echo "Error inserting into client: " . mysqli_stmt_error($stmt);
     }
+
+    // Close statements and connection
     mysqli_stmt_close($stmt);
-    mysqli_stmt_close($stmt2);
+    if (isset($stmt2)) {
+        mysqli_stmt_close($stmt2);
+    }
     mysqli_close($conn);
 }
 ?>

@@ -10,7 +10,7 @@ $project_pages = ['project.php', 'project_history.php'];
 $projects_active = in_array($project_current_page, $project_pages) ? 'show' : '';
 
 $stock_current_page = basename($_SERVER['PHP_SELF']);
-$stocks_pages = ['stocks.php', 'transactions.php', 'add_stocks.php', 'deduct_stocks.php'];
+$stocks_pages = ['stocks.php', 'transactions.php', 'add_stocks.php', 'deduct_stocks.php', 'stock_transaction_history.php'];
 $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
 
 
@@ -125,6 +125,11 @@ $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
                 class="sidebar-link <?= $stock_current_page == 'transactions.php' ? 'active' : '' ?>"
                 style="text-decoration: none;">Stock Transactions</a>
         </li>
+        <li>
+            <a href="../../md_dashboard/stocks/stock_transaction_history.php"
+                class="sidebar-link <?= $stock_current_page == 'stock_transaction_history.php' ? 'active' : '' ?>"
+                style="text-decoration: none;">Stock Transaction History</a>
+        </li>
     </ul>
 </li>
 
@@ -140,12 +145,12 @@ $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
                 <span>Supplier List</span>
             </a>
         </li> -->
-        <li class="sidebar-item">
+        <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Item List">
                 <i class="fa-solid fa-boxes-stacked"></i>
                 <span>Item List</span>
             </a>
-        </li>
+        </li> -->
         <li class="sidebar-item">
             <a href="../employee/user.php" class="sidebar-link" style="text-decoration: none;" title="User List">
                 <i class="fa-solid fa-users"></i>

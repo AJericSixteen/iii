@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+// include '../../asset/includes/auth_managing_director.php'; 
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
     exit();

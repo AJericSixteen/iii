@@ -1,5 +1,8 @@
 <?php
 session_start();
+
+// include '../../asset/includes/auth_managing_director.php';
+
 define('ALLOW_ACCESS', true);
 require('../../asset/database/db.php');
 
@@ -105,8 +108,6 @@ $currentDate = date("Y-m-d");
                                             <th>Service</th>
                                             <th>Tarp Type</th>
                                             <th>Description</th>
-                                            <th>Height</th>
-                                            <th>Width</th>
                                             <th>Quantity</th>
                                             <th>Price</th>
                                             <th>Total</th>

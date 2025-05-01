@@ -1,5 +1,6 @@
 <?php
 session_start();
+// include '../../asset/includes/auth_managing_director.php'; 
 require("../../asset/database/db.php");
 
 // Check if user is logged in

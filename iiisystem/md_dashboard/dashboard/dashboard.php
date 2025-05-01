@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+// include '../../asset/includes/auth_managing_director.php'; 
+
 if (!isset($_SESSION['user_id'])) {
   header("Location: ../../index.php");
   exit();
@@ -62,6 +64,48 @@ include('../../asset/database/db.php');
     <div class="main p-3">
       <div class="container">
         <div class="row g-4">
+        <?php
+// Function to get data for each of the last 12 months (Projects or Sales)
+function getMonthlyData($type) {
+    global $conn;
+    $data = [];
+    
+    // Get the current month and year
+    $currentMonth = date('m');
+    $currentYear = date('Y');
+    
+    // Loop through the past 12 months
+    for ($i = 0; $i < 12; $i++) {
+        // Calculate the target month (accounting for year change)
+        $month = ($currentMonth - $i - 1) % 12 + 1;
+        $year = $currentYear - floor(($currentMonth - $i - 1) / 12);
+        
+        if ($type === 'projects') {
+            $query = "SELECT COUNT(project_id) AS count FROM project 
+                      WHERE MONTH(date_requested) = $month AND YEAR(date_requested) = $year";
+        } elseif ($type === 'sales') {
+            $query = "SELECT SUM(total) AS sum FROM project 
+                      WHERE MONTH(date_requested) = $month AND YEAR(date_requested) = $year";
+        }
+
+        $result = mysqli_query($conn, $query);
+        $row = mysqli_fetch_assoc($result);
+
+        if ($type === 'projects') {
+            $data[] = $row['count'] ?? 0; // Handle no results as 0
+        } elseif ($type === 'sales') {
+            $data[] = $row['sum'] ? (float)$row['sum'] : 0; // Handle no sales as 0
+        }
+    }
+
+    return array_reverse($data);  // Reverse to show most recent month first
+}
+
+// Get Project counts and Sales sums for the past 12 months
+$projectCounts = getMonthlyData('projects');
+$salesSums = getMonthlyData('sales');
+?>
+
           <!-- Projects, Sales, and Stocks Cards -->
           <div class="col-md-6">
             <div class="card p-3 d-flex align-items-center card-toggle" data-target="#projectsGraph">
@@ -272,40 +316,60 @@ include('../../asset/database/db.php');
           </div>
           <!-- Frequently Used Stock Items (Based on Deduct Transactions) -->
           <div class="col-md-6">
-            <div class="card p-3">
-              <h5 class="text-center">Frequently Used Stock Items</h5>
-              <table class="table table-striped" id="frequentItemsTable">
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Usage Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php
-                  $query = "
-            SELECT 
+  <div class="card p-3">
+    <h5 class="text-center">Top Deducted Stock Items (This Month)</h5>
+    <table class="table table-striped" id="frequentItemsTable">
+      <thead>
+        <tr>
+          <th>Item Name</th>
+          <th>Total Deducted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+        // Query to get the top 10 deducted stock items by total quantity for this month
+        $query = "
+          SELECT 
             s.item_name,
-            COUNT(st.transaction_id) AS usage_count
-             FROM stock_transaction st
-            JOIN stocks s ON st.stock_id = s.stock_id
-           WHERE st.transaction_type = 'deduct'
+            SUM(st.quantity) AS total_deducted
+          FROM stock_transaction st
+          JOIN stocks s ON st.stock_id = s.stock_id
+          WHERE st.transaction_type = 'deduct'
+            AND MONTH(st.date) = MONTH(CURRENT_DATE())
+            AND YEAR(st.date) = YEAR(CURRENT_DATE())
           GROUP BY st.stock_id
-            ORDER BY usage_count DESC
+          ORDER BY total_deducted DESC
           LIMIT 10
         ";
-                  $result = mysqli_query($conn, $query);
-                  while ($row = mysqli_fetch_assoc($result)):
-                    ?>
-                    <tr>
-                      <td><?= htmlspecialchars($row['item_name']) ?></td>
-                      <td><?= $row['usage_count'] ?></td>
-                    </tr>
-                  <?php endwhile; ?>
-                </tbody>
-              </table>
-            </div>
-          </div>
+
+        $result = mysqli_query($conn, $query);
+        $grandTotalDeducted = 0;
+
+        if ($result && mysqli_num_rows($result) > 0) {
+          while ($row = mysqli_fetch_assoc($result)) {
+            $grandTotalDeducted += $row['total_deducted'];
+            echo "<tr>
+                    <td>" . htmlspecialchars($row['item_name']) . "</td>
+                    <td>" . $row['total_deducted'] . "</td>
+                  </tr>";
+          }
+        } else {
+          echo "<tr><td colspan='2' class='text-center'>No data available.</td></tr>";
+        }
+        ?>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Total Deducted</th>
+          <th><?= $grandTotalDeducted ?></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+
+
 
         </div>
       </div>
@@ -322,3 +386,75 @@ include('../../asset/database/db.php');
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../../asset/js/graph.js"></script>
 <script src="../../asset/js/dashboard_table.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Data for Projects Graph
+    const projectCounts = <?= json_encode($projectCounts) ?>;
+    const salesSums = <?= json_encode($salesSums) ?>;
+
+    // Generate month labels for the past 12 months with year
+    const labels = [];
+    for (let i = 0; i < 12; i++) {
+        const month = new Date();
+        month.setMonth(month.getMonth() - (11 - i)); // Subtract months to get past 12 months
+        const monthName = month.toLocaleString('default', { month: 'short' });  // Get abbreviated month name
+        const year = month.getFullYear();  // Get the full year
+        labels.push(`${monthName} ${year}`);  // Format the label as "Jan 2024"
+    }
+
+    // Create Projects Bar Chart
+    const projectsCtx = document.getElementById("projectsChart").getContext("2d");
+    new Chart(projectsCtx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Projects',
+                data: projectCounts,
+                backgroundColor: '#0c95b9'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // Create Sales Line Chart
+    const salesCtx = document.getElementById("salesChart").getContext("2d");
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Sales (₱)',
+                data: salesSums,
+                borderColor: '#ffbb02',
+                backgroundColor: 'rgba(255, 187, 2, 0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+

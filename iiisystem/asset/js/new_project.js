@@ -23,15 +23,7 @@ function createProductRow() {
             <label class="form-label">Description</label>
             <textarea name="description[]" class="form-control" rows="3" placeholder="Enter description"></textarea>
         </div>
-        <div class="p-2 col-md-1">
-            <label class="form-label">Height</label>
-            <input type="text" name="height[]" class="form-control" placeholder="Enter height" required>
-        </div>
-        <div class="p-2 col-md-1">
-            <label class="form-label">Width</label>
-            <input type="text" name="width[]" class="form-control" placeholder="Enter width" required>
-        </div>
-        <div class="p-2 col-md-1">
+        <div class="p-2 col-md-2">
             <label class="form-label">Quantity</label>
             <input type="text" name="quantity[]" class="form-control" placeholder="Enter quantity" required>
         </div>
@@ -154,8 +146,6 @@ $(document).ready(function () {
                     <td><input type="hidden" name="services[]" value="${data.service}">${data.service}</td>
                     <td><input type="hidden" name="tarp_type[]" value="${data.tarpType}">${data.tarpType}</td>
                     <td><input type="hidden" name="description[]" value="${data.description}">${data.description}</td>
-                    <td><input type="hidden" name="height[]" value="${data.height}">${data.height}</td>
-                    <td><input type="hidden" name="width[]" value="${data.width}">${data.width}</td>
                     <td><input type="hidden" name="quantity[]" value="${data.quantity}">${data.quantity}</td>
                     <td><input type="hidden" name="price[]" value="${data.price.toFixed(2)}">₱${data.price.toFixed(2)}</td>
                     <td><input type="hidden" name="total[]" value="${data.total.toFixed(2)}">₱${data.total.toFixed(2)}</td>

@@ -20,7 +20,7 @@ if (!isset($_SESSION['user_id'])) {
 
 <body>
     <div class="wrapper">
-        <?php require '../../asset/includes/sidebar.php'; ?>
+        <?php require '../../asset/includes/staff_sidebar.php'; ?>
         <div class="main p-3">
         </div>
     </div>

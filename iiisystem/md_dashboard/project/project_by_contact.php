@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+// include '../../asset/includes/auth_managing_director.php';
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
     exit();
@@ -205,8 +207,6 @@ $result = $stmt->get_result();
                                             <th style="color: white;">Services</th>
                                             <th style="color: white;">Tarp Type</th>
                                             <th style="color: white;">Description</th>
-                                            <th style="color: white;">Height</th>
-                                            <th style="color: white;">Width</th>
                                             <th style="color: white;">Price</th>
                                             <th style="color: white;">Total</th>
                                             <th style="color: white;">Delivery Receipt</th>
@@ -222,8 +222,6 @@ $result = $stmt->get_result();
                                                 <td><?= htmlspecialchars($row['services']) ?></td>
                                                 <td><?= htmlspecialchars($row['tarp_type']) ?></td>
                                                 <td><?= htmlspecialchars($row['description']) ?></td>
-                                                <td><?= $row['height'] ?></td>
-                                                <td><?= $row['width'] ?></td>
                                                 <td>₱<?= number_format($row['price'], 2) ?></td>
                                                 <td>₱<?= number_format($row['total'], 2) ?></td>
                                                 <td>

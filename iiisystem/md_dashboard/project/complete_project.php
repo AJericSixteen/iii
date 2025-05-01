@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Check file size
-    if ($_FILES["delivery_receipt"]["size"] > 500000) {
+    if ($_FILES["delivery_receipt"]["size"] > 5000000) {
         echo "Sorry, your file is too large.";
         $uploadOk = 0;
     }
