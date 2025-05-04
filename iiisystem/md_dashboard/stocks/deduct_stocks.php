@@ -82,44 +82,63 @@ if (isset($_POST['confirm_all'])) {
 
         // Update item quantity and process transaction
         try {
-            $quantityChange = -$quantity; // Deducting stock (negative change)
-
+            // Fetch current quantity
+            $stmtCheck = $conn->prepare("SELECT quantity FROM stocks WHERE barcode = ?");
+            $stmtCheck->bind_param("s", $item['barcode']);
+            $stmtCheck->execute();
+            $stmtCheck->bind_result($current_quantity);
+            $stmtCheck->fetch();
+            $stmtCheck->close();
+        
+            // Check if sufficient stock is available
+            if ($quantity > $current_quantity) {
+                $debug_log[] = "❌ Insufficient stock for item: " . $item['item_name'] . "<br>" .
+                               "You only have " . $current_quantity . " in stock, but tried to deduct " . $quantity . ".<br>";
+                $conn->rollback();
+                continue;
+            }
+        
+            // Proceed with deduction
+            $quantityChange = -$quantity;
+        
             $stmt = $conn->prepare("UPDATE stocks SET quantity = quantity + ? WHERE barcode = ?");
             $stmt->bind_param("is", $quantityChange, $item['barcode']);
-
+        
             if ($stmt->execute()) {
-                // Fetch the updated quantity after the transaction
+                // Fetch the updated quantity after deduction
                 $stmt2 = $conn->prepare("SELECT quantity FROM stocks WHERE barcode = ?");
                 $stmt2->bind_param("s", $item['barcode']);
                 $stmt2->execute();
                 $stmt2->bind_result($updated_quantity);
                 $stmt2->fetch();
                 $stmt2->close();
-
+        
                 // Log the transaction
                 $user_id = $_SESSION['user_id'];
-
+        
                 $stmt3 = $conn->prepare("INSERT INTO stock_transaction (stock_id, user_id, transaction_type, quantity, date) VALUES (?, ?, ?, ?, NOW())");
                 $stmt3->bind_param("iisi", $item['stock_id'], $user_id, $transaction_type, $quantity);
                 $stmt3->execute();
-
+        
                 $conn->commit();
-                
-                // Add the updated quantity to the debug log
-                $debug_log[] = "✅ Deducted successfully for item: " . $item['item_name'] . "<br>" . 
-                    "Quantity deducted: " . $quantity . "<br>" .
-                    "New quantity: " . $updated_quantity . "<br>";
+        
+                // Log success
+                $debug_log[] = "✅ Deducted successfully for item: " . $item['item_name'] . "<br>" .
+                               "Quantity deducted: " . $quantity . "<br>" .
+                               "New quantity: " . $updated_quantity . "<br>";
             } else {
                 $debug_log[] = "❌ Failed to update item: " . $stmt->error;
                 $conn->rollback();
             }
-
+        
             $stmt->close();
             $stmt3->close();
+        
         } catch (Exception $e) {
             $conn->rollback();
             $debug_log[] = "❌ Error: " . $e->getMessage();
         }
+        
     }
 
     $success_message = "Stock update results:<br><pre>" . implode("\n", $debug_log) . "</pre>";

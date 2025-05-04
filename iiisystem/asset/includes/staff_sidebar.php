@@ -5,12 +5,18 @@ if (!defined('ALLOW_ACCESS')) {
     exit();
 }
 
-$project_current_page = basename($_SERVER['PHP_SELF']);
+$project_current_page = basename($_SERVER['SCRIPT_NAME']);
 $project_pages = ['project.php', 'project_history.php'];
 $projects_active = in_array($project_current_page, $project_pages) ? 'show' : '';
 
 $stock_current_page = basename($_SERVER['PHP_SELF']);
-$stocks_pages = ['stocks.php', 'transactions.php', 'add_stocks.php', 'deduct_stocks.php'];
+$stocks_pages = [
+    'stocks.php',
+    'transactions.php',
+    'add_stocks.php',
+    'deduct_stocks.php',
+    'stock_transaction_history.php'
+];
 $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
 
 
@@ -48,7 +54,7 @@ $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
     </div>
     <ul class="sidebar-nav">
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link" style="text-decoration: none;"
+            <a href="../../staff_dashboard/dashboard/dashboard.php" class="sidebar-link" style="text-decoration: none;"
                 title="Dashboard">
                 <i class="fa-solid fa-gauge"></i>
                 <span>Dasboard</span>
@@ -61,25 +67,16 @@ $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
                 <span>Project</span>
             </a>
         </li> -->
+        <!-- Sidebar Projects Dropdown -->
+
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link dropdown-toggle" data-bs-toggle="collapse"
-                data-bs-target="#projectsDropdown" style="text-decoration: none;" title="Projects">
+            <a href="../../staff_dashboard/project/project.php" class="sidebar-link" style="text-decoration: none;"
+                title="Projects">
                 <i class="fa-solid fa-diagram-project"></i>
-                <span>Projects</span>
+                <span>Project</span>
             </a>
-            <ul class="collapse list-unstyled ms-4 <?= $projects_active ?>" id="projectsDropdown">
-                <li>
-                    <a href="#"
-                        class="sidebar-link <?= $project_current_page == 'project.php' ? 'active' : '' ?>"
-                        style="text-decoration: none;">Projects</a>
-                </li>
-                <li>
-                    <a href="#"
-                        class="sidebar-link <?= $project_current_page == 'project_history.php' ? 'active' : '' ?>"
-                        style="text-decoration: none;">Project History</a>
-                </li>
-            </ul>
         </li>
+
         <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Receiving">
                 <i class="fa-solid fa-boxes-stacked"></i>
@@ -98,36 +95,44 @@ $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
                 <span>Return List</span>
             </a>
         </li> -->
-        <li class="sidebar-item">
-    <a href="#" class="sidebar-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#stocksDropdown"
-        style="text-decoration: none;" title="Stocks">
-        <i class="fa-solid fa-warehouse"></i>
-        <span>Stocks</span>
-    </a>
-    <ul class="collapse list-unstyled ms-4 <?= $stocks_active ?>" id="stocksDropdown">
-        <li>
-            <a href="#"
-                class="sidebar-link <?= $stock_current_page == 'add_stocks.php' ? 'active' : '' ?>"
-                style="text-decoration: none;">Add Stocks</a>
-        </li>
-        <li>
-            <a href="#"
-                class="sidebar-link <?= $stock_current_page == 'deduct_stocks.php' ? 'active' : '' ?>"
-                style="text-decoration: none;">Deduct Stocks</a>
-        </li>
-        <li>
-            <a href="#"
-                class="sidebar-link <?= $stock_current_page == 'stocks.php' ? 'active' : '' ?>"
-                style="text-decoration: none;">Stock Inventory</a>
-        </li>
-        <li>
-            <a href="#"
-                class="sidebar-link <?= $stock_current_page == 'transactions.php' ? 'active' : '' ?>"
-                style="text-decoration: none;">Stock Transactions</a>
-        </li>
-    </ul>
-</li>
+        <!-- Sidebar Stocks Dropdown -->
+        <div class="sidebar-item">
+            <a href="#" class="sidebar-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#stocksDropdown"
+                style="text-decoration: none;" title="Stocks">
+                <i class="fa-solid fa-warehouse"></i>
+                <span>Stocks</span>
+            </a>
 
+            <div id="stocksDropdown" class="collapse sidebar-dropdown <?= $stocks_active ?>">
+                <ul>
+                    <li>
+                        <a href="../../staff_dashboard/stocks/add_stocks.php"
+                            class="sidebar-link <?= $stock_current_page == 'add_stocks.php' ? 'active' : '' ?>"
+                            style="text-decoration: none;">Add Stocks</a>
+                    </li>
+                    <li>
+                        <a href="../../staff_dashboard/stocks/deduct_stocks.php"
+                            class="sidebar-link <?= $stock_current_page == 'deduct_stocks.php' ? 'active' : '' ?>"
+                            style="text-decoration: none;">Deduct Stocks</a>
+                    </li>
+                    <li>
+                        <a href="../../staff_dashboard/stocks/stocks.php"
+                            class="sidebar-link <?= $stock_current_page == 'stocks.php' ? 'active' : '' ?>"
+                            style="text-decoration: none;">Stock Inventory</a>
+                    </li>
+                    <!-- <li>
+                        <a href="../../staff_dashboard/stocks/transactions.php"
+                            class="sidebar-link <?= $stock_current_page == 'transactions.php' ? 'active' : '' ?>"
+                            style="text-decoration: none;">Stock Transactions</a>
+                    </li> -->
+                    <!-- <li>
+                        <a href="../../staff_dashboard/stocks/stock_transaction_history.php"
+                            class="sidebar-link <?= $stock_current_page == 'stock_transaction_history.php' ? 'active' : '' ?>"
+                            style="text-decoration: none;">Stock Transaction History</a>
+                    </li> -->
+                </ul>
+            </div>
+        </div>
         <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Sale List">
                 <i class="fa-solid fa-tag"></i>
@@ -140,12 +145,18 @@ $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
                 <span>Supplier List</span>
             </a>
         </li> -->
-        <li class="sidebar-item">
+        <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Item List">
                 <i class="fa-solid fa-boxes-stacked"></i>
                 <span>Item List</span>
             </a>
-        </li>
+        </li> -->
+        <!-- <li class="sidebar-item">
+            <a href="../employee/user.php" class="sidebar-link" style="text-decoration: none;" title="User List">
+                <i class="fa-solid fa-users"></i>
+                <span>User List</span>
+            </a>
+        </li> -->
         <!-- <li class="sidebar-item">
             <a href="#" class="sidebar-link" style="text-decoration: none;" title="Settings">
                 <i class="fa-solid fa-cog"></i>
@@ -161,3 +172,4 @@ $stocks_active = in_array($stock_current_page, $stocks_pages) ? 'show' : '';
     </div>
 </aside>
 <script src="../../asset/js/sidebar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -240,7 +240,7 @@ if (isset($_POST['confirm_all'])) {
                             <form action="" method="POST" id="barcode-form">
                                 <div class="mb-3">
                                     <label for="barcode" class="form-label">Scan or Manually Enter Barcode</label>
-                                    <input type="text" name="barcode" id="barcode" class="form-control" autofocus autocomplete="off" placeholder="Scan or type barcode">
+                                    <input type="text" name="barcode" id="barcode" class="form-control" autocomplete="off" placeholder="Scan or type barcode" autofocus>
                                 </div>
                             </form>
 

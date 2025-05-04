@@ -31,6 +31,12 @@ include('../../asset/database/db.php');
   <!-- FontAwesome Icons -->
   <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
   <style>
+    .graph-container {
+    width: 100%;
+}
+canvas {
+    width: 100%;
+}
     /* CSS to handle text overflow and ensure all characters fit inside the table */
     table {
       width: 100%;
@@ -64,112 +70,114 @@ include('../../asset/database/db.php');
     <div class="main p-3">
       <div class="container">
         <div class="row g-4">
-        <?php
-// Function to get data for each of the last 12 months (Projects or Sales)
-function getMonthlyData($type) {
-    global $conn;
-    $data = [];
-    
-    // Get the current month and year
-    $currentMonth = date('m');
-    $currentYear = date('Y');
-    
-    // Loop through the past 12 months
-    for ($i = 0; $i < 12; $i++) {
-        // Calculate the target month (accounting for year change)
-        $month = ($currentMonth - $i - 1) % 12 + 1;
-        $year = $currentYear - floor(($currentMonth - $i - 1) / 12);
-        
-        if ($type === 'projects') {
-            $query = "SELECT COUNT(project_id) AS count FROM project 
+          <?php
+          // Function to get data for each of the last 12 months (Projects or Sales)
+          function getMonthlyData($type)
+          {
+            global $conn;
+            $data = [];
+
+            // Get the current month and year
+            $currentMonth = date('m');
+            $currentYear = date('Y');
+
+            // Loop through the past 12 months
+            for ($i = 0; $i < 12; $i++) {
+              // Calculate the target month (accounting for year change)
+              $month = ($currentMonth - $i - 1) % 12 + 1;
+              $year = $currentYear - floor(($currentMonth - $i - 1) / 12);
+
+              if ($type === 'projects') {
+                $query = "SELECT COUNT(project_id) AS count FROM project 
                       WHERE MONTH(date_requested) = $month AND YEAR(date_requested) = $year";
-        } elseif ($type === 'sales') {
-            $query = "SELECT SUM(total) AS sum FROM project 
+              } elseif ($type === 'sales') {
+                $query = "SELECT SUM(total) AS sum FROM project 
                       WHERE MONTH(date_requested) = $month AND YEAR(date_requested) = $year";
-        }
+              }
 
-        $result = mysqli_query($conn, $query);
-        $row = mysqli_fetch_assoc($result);
+              $result = mysqli_query($conn, $query);
+              $row = mysqli_fetch_assoc($result);
 
-        if ($type === 'projects') {
-            $data[] = $row['count'] ?? 0; // Handle no results as 0
-        } elseif ($type === 'sales') {
-            $data[] = $row['sum'] ? (float)$row['sum'] : 0; // Handle no sales as 0
-        }
-    }
+              if ($type === 'projects') {
+                $data[] = $row['count'] ?? 0; // Handle no results as 0
+              } elseif ($type === 'sales') {
+                $data[] = $row['sum'] ? (float) $row['sum'] : 0; // Handle no sales as 0
+              }
+            }
 
-    return array_reverse($data);  // Reverse to show most recent month first
-}
+            return array_reverse($data);  // Reverse to show most recent month first
+          }
 
-// Get Project counts and Sales sums for the past 12 months
-$projectCounts = getMonthlyData('projects');
-$salesSums = getMonthlyData('sales');
-?>
+          // Get Project counts and Sales sums for the past 12 months
+          $projectCounts = getMonthlyData('projects');
+          $salesSums = getMonthlyData('sales');
+          ?>
 
           <!-- Projects, Sales, and Stocks Cards -->
           <div class="col-md-6">
-            <div class="card p-3 d-flex align-items-center card-toggle" data-target="#projectsGraph">
-              <div class="d-flex align-items-center">
-                <span style="color: #0c95b9;">
-                  <i class="fa-solid fa-diagram-project card-icon" style="font-size: 50px;"></i>
-                </span>
-                <div>
-                  <h5>Projects</h5>
-                  <?php
-                  // Assuming database connection is already established
-                  $query = "SELECT COUNT(project_id) AS total_projects FROM project WHERE YEAR(date_requested) = YEAR(CURDATE())";
-                  $result = mysqli_query($conn, $query);
+    <div class="card p-3 d-flex align-items-center card-toggle" data-target="#projectsGraph">
+        <div class="d-flex align-items-center">
+            <span style="color: #0c95b9;">
+                <i class="fa-solid fa-diagram-project card-icon" style="font-size: 50px;"></i>
+            </span>
+            <div>
+                <h5>Projects</h5>
+                <?php
+                // Assuming database connection is already established
+                $query = "SELECT COUNT(project_id) AS total_projects FROM project WHERE YEAR(date_requested) = YEAR(CURDATE())";
+                $result = mysqli_query($conn, $query);
 
-                  if ($result) {
+                if ($result) {
                     $row = mysqli_fetch_assoc($result);
                     $totalProjects = $row['total_projects'];
-                  } else {
+                } else {
                     // Handle query error if needed
                     $totalProjects = 0;
-                  }
-                  ?>
-                  <p class="mb-0"><?= $totalProjects ?></p>
-                </div>
-              </div>
-            </div>
-            <div class="graph-container" id="projectsGraph">
-              <canvas id="projectsChart"></canvas>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="card p-3 d-flex align-items-center card-toggle" data-target="#salesGraph">
-              <div class="d-flex align-items-center">
-                <span style="color: #ffbb02;">
-                  <i class="fa-solid fa-tag card-icon" style="font-size: 50px;"></i>
-                </span>
-                <?php
-                // Query to calculate the total sum of the 'total' column for the current year
-                $query_sales = "
-                                SELECT SUM(total) AS total_sales
-                                FROM project
-                                WHERE YEAR(date_requested) = YEAR(CURDATE())
-                                ";
-                $result_sales = mysqli_query($conn, $query_sales);
-
-                if ($result_sales) {
-                  $row_sales = mysqli_fetch_assoc($result_sales);
-                  $totalSales = $row_sales['total_sales'] ? $row_sales['total_sales'] : 0; // If no sales, set to 0
-                } else {
-                  $totalSales = 0; // If query fails, set to 0
                 }
                 ?>
+                <p class="mb-0"><?= $totalProjects ?></p>
+            </div>
+        </div>
+    </div>
+    <div class="graph-container" id="projectsGraph" style="width: 100%; height: 300px;"> <!-- Adjust height here -->
+        <canvas id="projectsChart" style="max-height: 100%;"></canvas>
+    </div>
+</div>
 
-                <div>
-                  <h5>Sales</h5>
-                  <p class="mb-0"><span>₱ </span><?= number_format($totalSales, 2) ?></p> <!-- Display total sales -->
-                </div>
-              </div>
+<div class="col-md-6">
+    <div class="card p-3 d-flex align-items-center card-toggle" data-target="#salesGraph">
+        <div class="d-flex align-items-center">
+            <span style="color: #ffbb02;">
+                <i class="fa-solid fa-tag card-icon" style="font-size: 50px;"></i>
+            </span>
+            <?php
+            // Query to calculate the total sum of the 'total' column for the current year
+            $query_sales = "
+                            SELECT SUM(total) AS total_sales
+                            FROM project
+                            WHERE YEAR(date_requested) = YEAR(CURDATE())
+                            ";
+            $result_sales = mysqli_query($conn, $query_sales);
+
+            if ($result_sales) {
+                $row_sales = mysqli_fetch_assoc($result_sales);
+                $totalSales = $row_sales['total_sales'] ? $row_sales['total_sales'] : 0; // If no sales, set to 0
+            } else {
+                $totalSales = 0; // If query fails, set to 0
+            }
+            ?>
+            <div>
+                <h5>Sales</h5>
+                <p class="mb-0"><span>₱ </span><?= number_format($totalSales, 2) ?></p> <!-- Display total sales -->
             </div>
-            <div class="graph-container" id="salesGraph">
-              <canvas id="salesChart"></canvas>
-            </div>
-          </div>
+        </div>
+    </div>
+    <div class="graph-container" id="salesGraph" style="width: 100%; height: 300px;"> <!-- Adjust height here -->
+        <canvas id="salesChart" style="max-height: 100%;"></canvas>
+    </div>
+</div>
+
+
 
           <!-- <div class="col-md-4">
             <div class="card p-3 d-flex align-items-center card-toggle" data-target="#stocksGraph">
@@ -199,174 +207,194 @@ $salesSums = getMonthlyData('sales');
 
           <div class="col-12">
             <div class="card p-3">
-              <h5 class="text-center">Real-Time Stock Levels</h5>
-              <table class="table table-striped" id="stockTable">
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Category</th>
-                    <th>Quantity</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php
-                  // Assuming $result is your query result
-                  while ($row = mysqli_fetch_assoc($result)):
-                    $quantity = $row['quantity'];
-                    $min_stock = $row['min_stocks'];
-                    $status = "";
+              <!-- Card Header -->
+              <div class="card-header" style="background-color: #324d6b; color: white;">
+                <h5>Real-Time Stock Levels</h5>
+              </div>
 
-                    // Determine the stock level status
-                    if ($quantity == 0) {
-                      $status = "<span class='badge bg-danger'>Out of Stock</span>";
-                    } elseif ($quantity > 0 && $quantity < $min_stock) {
-                      $status = "<span class='badge bg-dark'>Under Minimum Stock</span>";
-                    }
-
-                    // Only display Out of Stock or Under Stock
-                    if ($status): // This ensures that only the relevant statuses are displayed
-                      ?>
-                      <tr>
-                        <td><?= htmlspecialchars($row['item_name']) ?></td>
-                        <td><?= htmlspecialchars($row['category']) ?></td>
-                        <td><?= $quantity ?></td>
-                        <td><?= date("M-d-Y", strtotime($row['last_updated'])) ?></td>
-                        <td><?= date("h:i A", strtotime($row['last_updated'])) ?></td>
-                        <td><?= $status ?></td> <!-- Display only Out of Stock or Under Stock -->
-                      </tr>
-                    <?php endif; endwhile; ?>
-                </tbody>
-
-
-              </table>
-            </div>
-          </div>
-          <!-- Projects to Track Status -->
-          <div class="col-md-6">
-            <div class="card p-3">
-              <h5 class="text-center">
-                Projects Status Tracker
-                <select id="statusFilter" class="form-select"
-                  style="width: auto; display: inline-block; margin-left: 15px;">
-                  <option value="all">All</option>
-                  <option value="pending">Pending</option>
-                  <option value="on_production">On Production</option>
-                  <option value="for_delivery">For Delivery</option>
-                  <option value="delivered">Delivered</option>
-                </select>
-              </h5>
-              <div class="table-container">
-                <table class="table table-striped" id="projectsTable">
+              <!-- Card Body -->
+              <div class="card-body">
+                <table class="table table-striped" id="stockTable">
                   <thead>
                     <tr>
-                      <th>Project ID</th>
-                      <th>Client Name</th>
-                      <th>Project Name</th>
+                      <th>Item Name</th>
+                      <th>Category</th>
+                      <th>Quantity</th>
+                      <th>Date</th>
+                      <th>Time</th>
                       <th>Status</th>
-                      <th>Due Date</th>
-                      <th>Age</th>
                     </tr>
                   </thead>
                   <tbody>
                     <?php
-                    // Query to fetch all projects with their statuses and client names
-                    $query = "
-                    SELECT 
-                      p.project_id, 
-                      c.name, 
-                      p.status, 
-                      p.date_needed, 
-                      CASE 
-                        WHEN p.status = 'completed' THEN '—'  -- Do not display delay for completed projects
-                        WHEN p.date_needed < CURDATE() THEN DATEDIFF(CURDATE(), p.date_needed)  -- Calculate delay if overdue
-                        ELSE 0  -- No delay if the due date is in the future
-                      END AS age, 
-                      p.services  
-                    FROM project p
-                    JOIN client c ON p.client_id = c.client_id  
-                    WHERE LOWER(p.status) != 'completed'  -- Exclude completed projects
-                  ";
-
-                    $result = mysqli_query($conn, $query);
+                    // Assuming $result is your query result
                     while ($row = mysqli_fetch_assoc($result)):
-                      ?>
-                      <tr class="project-row" data-status="<?= strtolower($row['status']); ?>">
-                        <td><?= htmlspecialchars($row['project_id']); ?></td>
-                        <td><?= htmlspecialchars($row['name']); ?></td> <!-- Display client name -->
-                        <td><?= htmlspecialchars($row['services']); ?></td> <!-- Display project/service name -->
-                        <td><?= ucfirst(strtolower($row['status'])); ?></td>
-                        <td><?= htmlspecialchars($row['date_needed']); ?></td>
+                      $quantity = $row['quantity'];
+                      $min_stock = $row['min_stocks'];
+                      $status = "";
 
-                        <!-- Check if the status is "Delivered" before displaying the age -->
-                        <?php if (strtolower($row['status']) != 'delivered'): ?>
-                          <td><?= htmlspecialchars($row['age']); ?> days</td>
-                        <?php else: ?>
-                          <td>—</td> <!-- Don't show age if the project is delivered -->
-                        <?php endif; ?>
-                      </tr>
-                    <?php endwhile; ?>
+                      // Determine the stock level status
+                      if ($quantity == 0) {
+                        $status = "<span class='badge bg-danger'>Out of Stock</span>";
+                      } elseif ($quantity > 0 && $quantity < $min_stock) {
+                        $status = "<span class='badge bg-dark'>Under Minimum Stock</span>";
+                      }
+
+                      // Only display Out of Stock or Under Stock
+                      if ($status): // This ensures that only the relevant statuses are displayed
+                        ?>
+                        <tr>
+                          <td><?= htmlspecialchars($row['item_name']) ?></td>
+                          <td><?= htmlspecialchars($row['category']) ?></td>
+                          <td><?= $quantity ?></td>
+                          <td><?= date("M-d-Y", strtotime($row['last_updated'])) ?></td>
+                          <td><?= date("h:i A", strtotime($row['last_updated'])) ?></td>
+                          <td><?= $status ?></td> <!-- Display only Out of Stock or Under Stock -->
+                        </tr>
+                      <?php endif; endwhile; ?>
                   </tbody>
-
                 </table>
               </div>
             </div>
           </div>
+
+          <!-- Projects to Track Status -->
+          <div class="col-md-12">
+            <div class="card p-3">
+              <!-- Card Header -->
+              <div class="card-header" style="background-color: #324d6b; color: white;">
+                <h5>
+                  Projects Status Tracker
+                  <select id="statusFilter" class="form-select"
+                    style="width: auto; display: inline-block; margin-left: 15px;">
+                    <option value="pending">Pending</option>
+                    <option value="on_production">On Production</option>
+                    <option value="for_delivery">For Delivery</option>
+                    <option value="delivered">Delivered</option>
+                  </select>
+                </h5>
+              </div>
+
+              <!-- Card Body -->
+              <div class="card-body">
+                <div class="table-container">
+                  <table class="table table-striped" id="projectsTable">
+                    <thead>
+                      <tr>
+                        <th>Project ID</th>
+                        <th>Client Name</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th>Age</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      // Query to fetch all projects with their statuses and client names
+                      $query = "
+              SELECT 
+                p.project_id, 
+                c.name, 
+                p.status, 
+                p.date_needed, 
+                CASE 
+                  WHEN p.status = 'completed' THEN '—'  -- Do not display delay for completed projects
+                  WHEN p.date_needed < CURDATE() THEN DATEDIFF(CURDATE(), p.date_needed)  -- Calculate delay if overdue
+                  ELSE 0  -- No delay if the due date is in the future
+                END AS age, 
+                p.services  
+              FROM project p
+              JOIN client c ON p.client_id = c.client_id  
+              WHERE LOWER(p.status) != 'completed'  -- Exclude completed projects
+            ";
+
+                      $result = mysqli_query($conn, $query);
+                      while ($row = mysqli_fetch_assoc($result)):
+                        ?>
+                        <tr class="project-row" data-status="<?= strtolower($row['status']); ?>">
+                          <td><?= htmlspecialchars($row['project_id']); ?></td>
+                          <td><?= htmlspecialchars($row['name']); ?></td> <!-- Display client name -->
+                          <td><?= htmlspecialchars($row['services']); ?></td> <!-- Display project/service name -->
+                          <td><?= ucfirst(strtolower($row['status'])); ?></td>
+                          <td><?= htmlspecialchars($row['date_needed']); ?></td>
+
+                          <!-- Check if the status is "Delivered" before displaying the age -->
+                          <?php if (strtolower($row['status']) != 'delivered'): ?>
+                            <td><?= htmlspecialchars($row['age']); ?> days</td>
+                          <?php else: ?>
+                            <td>—</td> <!-- Don't show age if the project is delivered -->
+                          <?php endif; ?>
+                        </tr>
+                      <?php endwhile; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Frequently Used Stock Items (Based on Deduct Transactions) -->
-          <div class="col-md-6">
-  <div class="card p-3">
-    <h5 class="text-center">Top Deducted Stock Items (This Month)</h5>
-    <table class="table table-striped" id="frequentItemsTable">
-      <thead>
-        <tr>
-          <th>Item Name</th>
-          <th>Total Deducted</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php
-        // Query to get the top 10 deducted stock items by total quantity for this month
-        $query = "
-          SELECT 
-            s.item_name,
-            SUM(st.quantity) AS total_deducted
-          FROM stock_transaction st
-          JOIN stocks s ON st.stock_id = s.stock_id
-          WHERE st.transaction_type = 'deduct'
-            AND MONTH(st.date) = MONTH(CURRENT_DATE())
-            AND YEAR(st.date) = YEAR(CURRENT_DATE())
-          GROUP BY st.stock_id
-          ORDER BY total_deducted DESC
-          LIMIT 10
-        ";
+          <div class="col-md-12">
+            <div class="card p-3">
+              <!-- Card Header -->
+              <div class="card-header" style="background-color: #324d6b; color: white;">
+                <h5>Top Deducted Stock Items (This Month)</h5>
+              </div>
 
-        $result = mysqli_query($conn, $query);
-        $grandTotalDeducted = 0;
+              <!-- Card Body -->
+              <div class="card-body">
+                <table class="table table-striped" id="frequentItemsTable">
+                  <thead>
+                    <tr>
+                      <th>Item Name</th>
+                      <th>Total Deducted</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                    // Query to get the top 10 deducted stock items by total quantity for this month
+                    $query = "
+            SELECT 
+              s.item_name,
+              SUM(st.quantity) AS total_deducted
+            FROM stock_transaction st
+            JOIN stocks s ON st.stock_id = s.stock_id
+            WHERE st.transaction_type = 'deduct'
+              AND MONTH(st.date) = MONTH(CURRENT_DATE())
+              AND YEAR(st.date) = YEAR(CURRENT_DATE())
+            GROUP BY st.stock_id
+            ORDER BY total_deducted DESC
+            LIMIT 10
+          ";
 
-        if ($result && mysqli_num_rows($result) > 0) {
-          while ($row = mysqli_fetch_assoc($result)) {
-            $grandTotalDeducted += $row['total_deducted'];
-            echo "<tr>
-                    <td>" . htmlspecialchars($row['item_name']) . "</td>
-                    <td>" . $row['total_deducted'] . "</td>
-                  </tr>";
-          }
-        } else {
-          echo "<tr><td colspan='2' class='text-center'>No data available.</td></tr>";
-        }
-        ?>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Total Deducted</th>
-          <th><?= $grandTotalDeducted ?></th>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-</div>
+                    $result = mysqli_query($conn, $query);
+                    $grandTotalDeducted = 0;
+
+                    if ($result && mysqli_num_rows($result) > 0) {
+                      while ($row = mysqli_fetch_assoc($result)) {
+                        $grandTotalDeducted += $row['total_deducted'];
+                        echo "<tr>
+                <td>" . htmlspecialchars($row['item_name']) . "</td>
+                <td>" . $row['total_deducted'] . "</td>
+              </tr>";
+                      }
+                    } else {
+                      echo "<tr><td colspan='2' class='text-center'>No data available.</td></tr>";
+                    }
+                    ?>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th>Total Deducted</th>
+                      <th><?= $grandTotalDeducted ?></th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+
 
 
 
@@ -391,10 +419,9 @@ $salesSums = getMonthlyData('sales');
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Data for Projects Graph
+document.addEventListener("DOMContentLoaded", function () {
+    // Data for Projects Graph (static for now, replace with dynamic data from PHP)
     const projectCounts = <?= json_encode($projectCounts) ?>;
     const salesSums = <?= json_encode($salesSums) ?>;
 
@@ -422,6 +449,7 @@ document.addEventListener("DOMContentLoaded", function() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false, // Ensures the chart will resize
             scales: {
                 y: {
                     beginAtZero: true,
@@ -448,6 +476,7 @@ document.addEventListener("DOMContentLoaded", function() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false, // Ensures the chart will resize
             scales: {
                 y: {
                     beginAtZero: true
@@ -456,5 +485,5 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
-</script>
 
+</script>
